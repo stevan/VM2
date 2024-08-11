@@ -50,6 +50,7 @@ class VM::Opcodes {
             my $op   = $OPCODES[$i];
             my $enum = ::enum $i++, $op;
             constant->import( $op => $enum );
+            $OPCODES[$i] = $enum;
         }
     }
 
