@@ -66,14 +66,14 @@ class VM::Opcodes {
 
         $MICROCODE[JUMP] = Sub::Util::set_subname( JUMP => sub ($cpu) {
             my $addr = $cpu->next_op;
-            $cpu->jump_to( $addr );
+            $cpu->jump_to( $addr->address );
         });
 
         $MICROCODE[JUMP_IF_FALSE] = Sub::Util::set_subname( JUMP_IF_FALSE => sub ($cpu) {
             my $addr = $cpu->next_op;
             my $bool = $cpu->pop;
             if ( $bool isa VM::Value::FALSE ) {
-                $cpu->jump_to( $addr );
+                $cpu->jump_to( $addr->address );
             }
         });
 

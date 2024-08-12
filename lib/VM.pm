@@ -29,7 +29,7 @@ class VM {
         $assembler->assemble(\@source);
 
         $core->load_code(
-            $assembler->labels->{'main'},
+            $assembler->label_to_addr->{'main'},
             $assembler->code
         );
     }
