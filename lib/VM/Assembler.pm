@@ -5,8 +5,12 @@ use experimental qw[ class ];
 
 class VM::Assembler {
 
-    method assemble (@source) {
-        #die join "\n" => map { blessed $_ ? $_->to_string : $_ } @source;
+    field @source :reader;
+    field $code   :reader;
+    field $labels :reader;
+
+    method assemble ($src) {
+        @source = @$src;
 
         # build the table of labels ...
         my %labels;
@@ -18,9 +22,6 @@ class VM::Assembler {
                 $label_idx++;
             }
         }
-
-        #use Data::Dumper;
-        #warn Dumper \%labels;
 
         # replace all the anchors with the label
         foreach my ($i, $token) (indexed @source) {
@@ -38,7 +39,10 @@ class VM::Assembler {
 
         #die join "\n" => map { blessed $_ ? $_->to_string : $_ } @code;
 
-       return \@code;
+        $code   = \@code;
+        $labels = \%labels;
+
+       return;
     }
 
 }

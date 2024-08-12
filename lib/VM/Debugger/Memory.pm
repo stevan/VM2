@@ -4,7 +4,7 @@ use v5.40;
 use experimental qw[ class ];
 
 class VM::Debugger::Memory {
-    field $block  :param :reader;
+    field $vm     :param :reader;
     field $width  :param :reader = 30;
 
     field $count_fmt;
@@ -18,6 +18,7 @@ class VM::Debugger::Memory {
     }
 
     method draw {
+        my $block  = $vm->core->heap;
         my @words  = $block->words;
         my %freed  = map { refaddr $_, $_ } $block->freed;
         my @sorted = sort { $a->address <=> $b->address } ($block->allocated, $block->freed);
@@ -25,7 +26,7 @@ class VM::Debugger::Memory {
         my @out;
         push @out => ('=' x $width);
         foreach my $ptr (@sorted) {
-            my $color = $used_colors{ refaddr $ptr } //= [ map { int(rand(255)) } qw[ r g b ] ];
+            my $color = $used_colors{ refaddr $ptr } //= [ map { int(rand(25)) * 10 } qw[ r g b ] ];
             foreach my $address ( $ptr->address_range ) {
                 unless (exists $freed{ refaddr $ptr }) {
                     push @out => sprintf "\e[48;2;%d;%d;%d;m${count_fmt} ┊${value_fmt}\e[0m" => @$color, $address, $words[$address];

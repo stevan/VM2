@@ -4,7 +4,7 @@ use v5.40;
 use experimental qw[ class ];
 
 class VM::Debugger::Stack {
-    field $cpu    :param :reader;
+    field $vm     :param :reader;
     field $width  :param :reader = 30;
     field $height :param :reader = 20;
 
@@ -33,6 +33,7 @@ class VM::Debugger::Stack {
     }
 
     method draw {
+        my $cpu   = $vm->core;
         my $fp    = $cpu->fp;
         my $sp    = $cpu->sp;
         my @stack = $cpu->stack;

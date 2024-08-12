@@ -4,14 +4,15 @@ use v5.40;
 use experimental qw[ class builtin ];
 
 use VM;
-use VM::Memory;
 use VM::Assembler::Assembly;
 
 use VM::Debugger::Memory;
 
-my $block = VM::Memory::Block->new( capacity => 10 );
+my $vm = VM->new( heap_size => 10 );
 
-my $bdebug = VM::Debugger::Memory->new( block => $block );
+my $block = $vm->core->heap;
+
+my $bdebug = VM::Debugger::Memory->new( vm => $vm );
 
 my $ptr = $block->alloc(5, 1);
 

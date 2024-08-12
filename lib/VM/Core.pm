@@ -5,11 +5,7 @@ use experimental qw[ class ];
 
 use VM::Opcodes;
 
-use VM::Debugger::Stack;
-
 class VM::Core {
-    use constant DEBUG => $ENV{DEBUG} // 0;
-
     field $heap :param :reader;
 
     field @code  :reader;
@@ -31,11 +27,11 @@ class VM::Core {
         @microcode = @VM::Opcodes::MICROCODE;
     }
 
-    method load_code ($code) {
+    method load_code ($entry, $code) {
         @code  = @$code;
         @stack = ();
         $ic    =  0;
-        $pc    =  0;
+        $pc    =  $entry;
         $ci    =  0;
         $fp    =  0;
         $sp    = -1;
@@ -59,8 +55,7 @@ class VM::Core {
         $fp      = 0;
     }
 
-    method execute ($entry=0) {
-        $pc      = $entry;
+    method execute ($debugger=undef) {
         $error   = undef;
         $running = true;
 
@@ -70,9 +65,9 @@ class VM::Core {
             $microcode[$opcode]->($self);
             $ic++;
 
-            if (DEBUG) {
+            if ($debugger) {
                 print "\e[2J\e[H\n";
-                say join "\n" => VM::Debugger::Stack->new( cpu => $self )->draw;
+                say join "\n" => $debugger->draw;
                 my $x = <>;
             }
         }

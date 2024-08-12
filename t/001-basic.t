@@ -8,6 +8,7 @@ use Sub::Util    ();
 
 use VM;
 use VM::Assembler::Assembly;
+use VM::Debugger::Stack;
 
 my $vm = VM->new;
 
@@ -24,7 +25,9 @@ $vm->assemble(
         HALT
 );
 
-$vm->execute;
+$vm->execute(
+    VM::Debugger::Stack->new( vm => $vm )
+);
 
 
 

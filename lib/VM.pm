@@ -9,25 +9,32 @@ use VM::Memory;
 use VM::Assembler;
 
 class VM {
+    use constant DEBUG => $ENV{DEBUG} // 0;
+
     field $heap_size :param :reader = 100;
 
-    field $core;
-    field $memory;
+    field $assembler :reader;
+    field $core      :reader;
+    field $memory    :reader;
 
     ADJUST {
-        $memory = VM::Memory->new;
-        $core   = VM::Core->new(
+        $assembler = VM::Assembler->new;
+        $memory    = VM::Memory->new;
+        $core      = VM::Core->new(
             heap => $memory->allocate_block( $heap_size )
         );
     }
 
     method assemble (@source) {
-        my $assembler = VM::Assembler->new;
+        $assembler->assemble(\@source);
 
-        my $code = $assembler->assemble(@source);
-
-        $core->load_code( $code )
+        $core->load_code(
+            $assembler->labels->{'main'},
+            $assembler->code
+        );
     }
 
-    method execute { $core->execute }
+    method execute ($debugger=undef) {
+        $core->execute( DEBUG ? $debugger : () );
+    }
 }
