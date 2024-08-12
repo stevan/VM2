@@ -5,6 +5,7 @@ use experimental qw[ class builtin ];
 use builtin      qw[ export_lexically ];
 
 use Scalar::Util ();
+use constant     ();
 
 package VM::Internal::Tools {
     sub import {
