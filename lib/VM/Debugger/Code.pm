@@ -10,6 +10,7 @@ class VM::Debugger::Code {
 
     field $count_fmt;
     field $value_fmt;
+
     field $active_fmt;
     field $inactive_fmt;
     field $label_fmt;
@@ -21,7 +22,6 @@ class VM::Debugger::Code {
         $active_fmt   = "\e[0;33m\e[7m${count_fmt} ▶${value_fmt}\e[0m";
         $inactive_fmt = "${count_fmt} ┊${value_fmt}\e[0m";
         $label_fmt    = "\e[0;96m\e[4m\e[1m%-${width}s\e[0m";
-
     }
 
     method draw {
