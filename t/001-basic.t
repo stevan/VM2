@@ -19,6 +19,7 @@ class VM::Types {
 }
 
 class VM::Value {
+    use overload '""' => 'to_string';
     method type;
     method value;
     method to_string { sprintf '%.1s(%s)' => lc $self->type, $self->value }
@@ -27,6 +28,28 @@ class VM::Value {
 class VM::Value::INT :isa(VM::Value) {
     field $value :param :reader;
     method type { VM::Types->INT }
+}
+
+class VM::Value::FLOAT :isa(VM::Value) {
+    field $value :param :reader;
+    method type { VM::Types->FLOAT }
+}
+
+class VM::Value::CHAR :isa(VM::Value) {
+    field $value :param :reader;
+    method type { VM::Types->CHAR }
+}
+
+class VM::Value::TRUE :isa(VM::Value) {
+    method value { true }
+    method type  { VM::Types->BOOL }
+    method to_string { '#t' }
+}
+
+class VM::Value::FALSE :isa(VM::Value) {
+    method value { false }
+    method type  { VM::Types->BOOL }
+    method to_string { '#f' }
 }
 
 ## ----------------------------------------------------------------------------
@@ -50,7 +73,6 @@ class VM::Opcodes {
             my $op   = $OPCODES[$i];
             my $enum = ::enum $i++, $op;
             constant->import( $op => $enum );
-            $OPCODES[$i] = $enum;
         }
     }
 
@@ -71,7 +93,7 @@ class VM::Opcodes {
 
         $MICROCODE[PRINT] = Sub::Util::set_subname( PRINT => sub ($cpu) {
             my $arg = $cpu->pop;
-            print $arg->to_string;
+            #print $arg->to_string;
         });
 
         (scalar @MICROCODE == scalar @OPCODES)
@@ -80,19 +102,23 @@ class VM::Opcodes {
     }
 }
 
+## ----------------------------------------------------------------------------
+
 class VM::Core {
-    field @code;
-    field @stack;
+    use constant DEBUG => $ENV{DEBUG} // 0;
 
-    field $ic =  0; # instruction counter (number of instructions run)
-    field $pc =  0; # program counter (points to current instruction)
-    field $ci =  0; # current instruction being run
+    field @code  :reader;
+    field @stack :reader;
 
-    field $fp =  0; # frame pointer (points to the top of the current stack frame)
-    field $sp = -1; # stack pointer (points to the current head of the stack)
+    field $ic :reader =  0; # instruction counter (number of instructions run)
+    field $pc :reader =  0; # program counter (points to current instruction)
+    field $ci :reader =  0; # current instruction being run
 
-    field $error   = undef;
-    field $running = false;
+    field $fp :reader =  0; # frame pointer (points to the top of the current stack frame)
+    field $sp :reader = -1; # stack pointer (points to the current head of the stack)
+
+    field $running :reader = false;
+    field $error = undef;
 
     field @microcode;
 
@@ -109,6 +135,7 @@ class VM::Core {
         $fp    =  0;
         $sp    = -1;
         $error = undef;
+        $self;
     }
 
     method error :lvalue { $error }
@@ -135,7 +162,105 @@ class VM::Core {
             my $opcode = $self->next_op;
             $microcode[$opcode]->($self);
             $ic++;
+
+            if (DEBUG) {
+                print "\e[2J\e[H\n";
+                say join "\n" => Debugger::Stack->new( cpu => $self )->draw;
+                my $x = <>;
+            }
         }
+    }
+}
+
+## ----------------------------------------------------------------------------
+
+class Debugger::Stack {
+    field $cpu    :param :reader;
+    field $width  :param :reader = 30;
+    field $height :param :reader = 20;
+
+    field $count_fmt;
+    field $title_fmt;
+    field $value_fmt;
+    field $sp_fmt;
+    field $fp_fmt;
+    field $fp_inner_fmt;
+    field $above_sp_fmt;
+    field $above_fp_fmt;
+    field $active_fmt;
+
+    my $double_arrow = '▶';
+    my $single_arrow = '▷';
+    my $divider_line = '┊';
+
+    ADJUST {
+        $count_fmt    = "%05d";
+        $value_fmt    = "%${width}s";
+        $sp_fmt       = "${count_fmt} %s\e[0;33m\e[4m\e[1m${value_fmt}\e[0m";
+        $fp_fmt       = "${count_fmt} %s\e[0;32m\e[4m\e[1m${value_fmt}\e[0m";
+        $fp_inner_fmt = "${count_fmt} %s\e[0;32m\e[2m\e[1m${value_fmt}\e[0m";
+        $above_sp_fmt = "\e[38;5;240m${count_fmt} %s${value_fmt}\e[0m";
+        $above_fp_fmt = "${count_fmt} %s\e[0;33m\e[1m${value_fmt}\e[0m";
+        $active_fmt   = "${count_fmt} %s\e[0;36m${value_fmt}\e[0m";
+    }
+
+    method draw {
+        my $fp    = $cpu->fp;
+        my $sp    = $cpu->sp;
+        my @stack = $cpu->stack;
+
+        my $top    = $#stack;
+        my $bottom = 0;
+
+        if ($top > $height) {
+            if ($sp > $height) {
+                $bottom = $sp - $height;
+                $top    = $sp;
+            }
+            else {
+                $top = $height;
+            }
+        } elsif ($top < $height) {
+            $top = $height;
+        }
+
+        my @display = $bottom .. $top;
+
+        my @out;
+        foreach my $i (reverse @display) {
+            my $fmt;
+            if ($i == $sp) {
+                $fmt = $sp_fmt;
+            } elsif ($i == $fp) {
+                $fmt = $fp_fmt;
+            } else {
+                if ($i < $sp) {
+                    if ($i > $fp) {
+                        $fmt = $above_fp_fmt;
+                    } elsif ($i > ($fp - 3)) {
+                        $fmt = $fp_inner_fmt;
+                    } else {
+                        $fmt = $active_fmt;
+                    }
+                } else {
+                    $fmt = $above_sp_fmt;
+                }
+            }
+
+            my $div;
+            if ($i == $fp && $i == $sp) {
+                $div = $double_arrow;
+            } elsif ($i == $fp) {
+                $div = $single_arrow;
+            } elsif ($i == $sp) {
+                $div = $single_arrow;
+            } else {
+                $div = $divider_line;
+            }
+
+            push @out => sprintf $fmt => $i, $div, ($stack[$i] // '~');
+        }
+        return @out;
     }
 }
 
@@ -156,6 +281,8 @@ package VM::Assembly {
     }
 }
 
+## ----------------------------------------------------------------------------
+
 package main;
 
 BEGIN { VM::Assembly->import }
@@ -163,9 +290,8 @@ BEGIN { VM::Assembly->import }
 my $cpu = VM::Core->new;
 
 $cpu->load_code([
-    CONST_INT, i(1),
-    CONST_INT, i(2),
-    ADD_INT,
+    (map { CONST_INT(), i($_) } ( 0 .. 25 )),
+    (map { ADD_INT() } ( 0 .. 19 )),
     PRINT,
     HALT
 ]);
