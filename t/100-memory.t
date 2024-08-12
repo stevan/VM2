@@ -7,6 +7,8 @@ use VM;
 use VM::Memory;
 use VM::Assembler::Assembly;
 
+use VM::Debugger::Memory;
+
 my $block = VM::Memory::Block->new( capacity => 10 );
 
 my $ptr = $block->alloc(5, 1);
@@ -36,13 +38,28 @@ warn join ' : ', $ptr2, $block->resolve($ptr2), refaddr $block->resolve($ptr2);
 $ptr2->index(4);
 $block->resolve($ptr2) = i(400);
 warn join ' : ', $ptr2, $block->resolve($ptr2), refaddr $block->resolve($ptr2);
-#$ptr2->inc;
-#warn join ' : ', $ptr2, $block->resolve($ptr2), refaddr $block->resolve($ptr2);
 
-say join "\n" => map { $_ // '~' } $block->dump->@*;
+say join "\n" => VM::Debugger::Memory->new( block => $block )->draw;
 
 $block->free( $ptr );
 
-say join "\n" => map { $_ // '~' } $block->dump->@*;
+say join "\n" => VM::Debugger::Memory->new( block => $block )->draw;
 
+my $ptr3 = $block->alloc(5, 1);
+
+say join "\n" => VM::Debugger::Memory->new( block => $block )->draw;
+
+$block->resolve($ptr3) = i(1000);
+warn join ' : ', $ptr3, $block->resolve($ptr3), refaddr $block->resolve($ptr3);
+$ptr3->inc;
+$block->resolve($ptr3) = i(2000);
+warn join ' : ', $ptr3, $block->resolve($ptr3), refaddr $block->resolve($ptr3);
+$ptr3->inc;
+$block->resolve($ptr3) = i(3000);
+warn join ' : ', $ptr3, $block->resolve($ptr3), refaddr $block->resolve($ptr3);
+$ptr3->index(4);
+$block->resolve($ptr3) = i(4000);
+warn join ' : ', $ptr3, $block->resolve($ptr3), refaddr $block->resolve($ptr3);
+
+say join "\n" => VM::Debugger::Memory->new( block => $block )->draw;
 

@@ -10,6 +10,8 @@ use VM::Debugger::Stack;
 class VM::Core {
     use constant DEBUG => $ENV{DEBUG} // 0;
 
+    field $heap :param :reader;
+
     field @code  :reader;
     field @stack :reader;
 

@@ -9,7 +9,6 @@ class VM::Debugger::Stack {
     field $height :param :reader = 20;
 
     field $count_fmt;
-    field $title_fmt;
     field $value_fmt;
     field $sp_fmt;
     field $fp_fmt;
@@ -24,7 +23,7 @@ class VM::Debugger::Stack {
 
     ADJUST {
         $count_fmt    = "%05d";
-        $value_fmt    = "%${width}s";
+        $value_fmt    = "%".($width - 7)."s"; # 5 for the counter, 2 for the divider
         $sp_fmt       = "${count_fmt} %s\e[0;33m\e[4m\e[1m${value_fmt}\e[0m";
         $fp_fmt       = "${count_fmt} %s\e[0;32m\e[4m\e[1m${value_fmt}\e[0m";
         $fp_inner_fmt = "${count_fmt} %s\e[0;32m\e[2m\e[1m${value_fmt}\e[0m";

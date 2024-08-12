@@ -13,7 +13,9 @@ class VM::Memory::Pointer {
     field $stride  :param :reader;     # size of individual type
     field $offset         :reader = 0; # offset of the base address
 
-    method address_range { $address .. ($address + ($size - 1)) }
+    method base_address  { $address }
+    method last_address  { ($address + ($size - 1)) }
+    method address_range { $address .. $self->last_address }
 
     method address {
         die VM::Errors->POINTER_OVERFLOW  if ($offset * $stride) > ($size - 1);
@@ -26,5 +28,5 @@ class VM::Memory::Pointer {
 
     method index ($idx) { $offset = $idx }
 
-    method to_string { sprintf '*<%04d>[%d]' => $address, $offset }
+    method to_string { sprintf '*<%04d:%d>[%d]' => $address, $size, $offset }
 }

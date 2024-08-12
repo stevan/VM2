@@ -8,7 +8,7 @@ use VM::Memory::Block;
 class VM::Memory {
     field @blocks;
 
-    method alloc_block ($capcity) {
+    method allocate_block ($capcity) {
         VM::Memory::Block->new( capacity => $capcity )
     }
 }
