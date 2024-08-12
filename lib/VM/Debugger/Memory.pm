@@ -38,7 +38,7 @@ class VM::Debugger::Memory {
         }
 
         push @out => ('-' x $width);
-        push @out => ('Allocated:');
+        push @out => (sprintf 'Allocated:');
         foreach my ($i, $ptr) ( indexed $block->allocated ) {
             push @out => sprintf "\e[48;2;%d;%d;%d;m${count_fmt} ┊${value_fmt}\e[0m" => $used_colors{ refaddr $ptr }->@*, $i, $ptr->to_string
         }

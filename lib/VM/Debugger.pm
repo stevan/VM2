@@ -37,17 +37,29 @@ class VM::Debugger {
 
         my $height = List::Util::max( $code_height, $stack_height, $memory_height );
 
-        #['╭─',('─' x $width),              '─╮'],
-        #['│ ',(sprintf $title_fmt, $title),' │'],
 
         my @out;
+
+        push @out => (join ' ' =>
+            ('╭── Code '  .('─' x ($code_width   - 7)).'─╮'),
+            ('╭── Stack ' .('─' x ($stack_width  - 8)).'─╮'),
+            ('╭── Memory '.('─' x ($memory_width - 9)).'─╮'),
+        );
+
         foreach my $i ( 0 .. $height ) {
-            push @out => join ' ││ ' => (
+            push @out => (join ' ' => map { sprintf '│ %s │' => $_ } (
                 $code[$i]   // (' ' x   $code_width),
                 $stack[$i]  // (' ' x  $stack_width),
                 $memory[$i] // (' ' x $memory_width),
-            );
+            ));
         }
+
+        push @out => (join ' ' =>
+            ('╰─'.('─' x $code_width)   .'─╯'),
+            ('╰─'.('─' x $stack_width)  .'─╯'),
+            ('╰─'.('─' x $memory_width) .'─╯'),
+        );
+
         return @out;
     }
 }
