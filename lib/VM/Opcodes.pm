@@ -21,8 +21,13 @@ class VM::Opcodes {
     BEGIN {
         @OPCODES = qw[
             CONST_INT
+            CONST_TRUE
+            CONST_FALSE
 
             ADD_INT
+
+            JUMP
+            JUMP_IF_FALSE
 
             PRINT
 
@@ -45,10 +50,31 @@ class VM::Opcodes {
             $cpu->push( $int );
         });
 
+        $MICROCODE[CONST_TRUE] = Sub::Util::set_subname( CONST_TRUE => sub ($cpu) {
+            $cpu->push( VM::Value::TRUE->new );
+        });
+
+        $MICROCODE[CONST_FALSE] = Sub::Util::set_subname( CONST_FALSE => sub ($cpu) {
+            $cpu->push( VM::Value::FALSE->new );
+        });
+
         $MICROCODE[ADD_INT] = Sub::Util::set_subname( ADD_INT => sub ($cpu) {
             my $rhs = $cpu->pop;
             my $lhs = $cpu->pop;
             $cpu->push( VM::Value::INT->new( value => $lhs->value + $rhs->value ) );
+        });
+
+        $MICROCODE[JUMP] = Sub::Util::set_subname( JUMP => sub ($cpu) {
+            my $addr = $cpu->next_op;
+            $cpu->jump_to( $addr );
+        });
+
+        $MICROCODE[JUMP_IF_FALSE] = Sub::Util::set_subname( JUMP_IF_FALSE => sub ($cpu) {
+            my $addr = $cpu->next_op;
+            my $bool = $cpu->pop;
+            if ( $bool isa VM::Value::FALSE ) {
+                $cpu->jump_to( $addr );
+            }
         });
 
         $MICROCODE[PRINT] = Sub::Util::set_subname( PRINT => sub ($cpu) {

@@ -51,6 +51,8 @@ class VM::Core {
 
     method next_op { $code[$pc++] }
 
+    method jump_to ($addr) { $pc = $addr }
+
     method halt {
         $running = false;
         $sp      = -1;

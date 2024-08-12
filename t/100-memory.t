@@ -11,6 +11,8 @@ use VM::Debugger::Memory;
 
 my $block = VM::Memory::Block->new( capacity => 10 );
 
+my $bdebug = VM::Debugger::Memory->new( block => $block );
+
 my $ptr = $block->alloc(5, 1);
 
 $block->resolve($ptr) = i(10);
@@ -39,15 +41,15 @@ $ptr2->index(4);
 $block->resolve($ptr2) = i(400);
 warn join ' : ', $ptr2, $block->resolve($ptr2), refaddr $block->resolve($ptr2);
 
-say join "\n" => VM::Debugger::Memory->new( block => $block )->draw;
+say join "\n" => $bdebug->draw;
 
 $block->free( $ptr );
 
-say join "\n" => VM::Debugger::Memory->new( block => $block )->draw;
+say join "\n" => $bdebug->draw;
 
 my $ptr3 = $block->alloc(5, 1);
 
-say join "\n" => VM::Debugger::Memory->new( block => $block )->draw;
+say join "\n" => $bdebug->draw;
 
 $block->resolve($ptr3) = i(1000);
 warn join ' : ', $ptr3, $block->resolve($ptr3), refaddr $block->resolve($ptr3);
@@ -61,5 +63,5 @@ $ptr3->index(4);
 $block->resolve($ptr3) = i(4000);
 warn join ' : ', $ptr3, $block->resolve($ptr3), refaddr $block->resolve($ptr3);
 
-say join "\n" => VM::Debugger::Memory->new( block => $block )->draw;
+say join "\n" => $bdebug->draw;
 

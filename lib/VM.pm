@@ -6,6 +6,8 @@ use experimental qw[ class ];
 use VM::Core;
 use VM::Memory;
 
+use VM::Assembler;
+
 class VM {
     field $heap_size :param :reader = 100;
 
@@ -19,6 +21,13 @@ class VM {
         );
     }
 
-    method load_code ($code) { $core->load_code( $code ) }
-    method execute           { $core->execute }
+    method assemble (@source) {
+        my $assembler = VM::Assembler->new;
+
+        my $code = $assembler->assemble(@source);
+
+        $core->load_code( $code )
+    }
+
+    method execute { $core->execute }
 }

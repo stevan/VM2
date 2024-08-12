@@ -6,6 +6,8 @@ use builtin      qw[ export_lexically ];
 
 use VM::Opcodes;
 
+use VM::Assembler::Label;
+
 use VM::Value::INT;
 use VM::Value::FLOAT;
 use VM::Value::CHAR;
@@ -19,7 +21,10 @@ package VM::Assembler::Assembly {
             '&i' => sub ($i) { VM::Value::INT   ->new( value => $i ) },
             '&f' => sub ($f) { VM::Value::FLOAT ->new( value => $f ) },
             '&c' => sub ($c) { VM::Value::CHAR  ->new( value => $c ) },
+
+            '&label' => sub ($l) { VM::Assembler::Label->new( label => $l ) }
         );
+
         foreach my $opcode ( @VM::Opcodes::OPCODES ) {
             my $code = VM::Opcodes->$opcode;
             $exports{ sprintf '&%s' => $opcode } = sub () { $code };

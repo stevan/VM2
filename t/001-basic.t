@@ -11,12 +11,18 @@ use VM::Assembler::Assembly;
 
 my $vm = VM->new;
 
-$vm->load_code([
-    (map { CONST_INT(), i($_) } ( 0 .. 25 )),
-    (map { ADD_INT() } ( 0 .. 19 )),
-    PRINT,
-    HALT
-]);
+$vm->assemble(
+    label('.main'),
+        CONST_TRUE,
+        JUMP_IF_FALSE, label('#main.else'),
+            CONST_INT, i(10),
+            JUMP, label('#main.endif'),
+        label('.main.else'),
+            CONST_INT, i(20),
+        label('.main.endif'),
+        PRINT,
+        HALT
+);
 
 $vm->execute;
 
