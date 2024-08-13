@@ -76,6 +76,14 @@ class VM::Memory::Block {
         throw VM::Errors->MEMORY_OVERFLOW  if $address > ($capacity - 1);
         throw VM::Errors->MEMORY_UNDERFLOW if $address < 0;
 
-        $words[ $address ];
+        if ($pointer->stride == 1) {
+            return $words[ $address ];
+        } else {
+            return VM::Memory::Pointer->new(
+                address => $address,
+                stride  => 1,
+                size    => $pointer->stride,
+            );
+        }
     }
 }
