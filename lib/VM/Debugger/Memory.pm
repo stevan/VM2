@@ -41,13 +41,21 @@ class VM::Debugger::Memory {
         push @out => (sprintf "\e[1m${title_fmt}\e[0m" => '══ Pointers '.('═' x ($width - 12)));
 
         push @out => (sprintf "\e[4m${title_fmt}\e[0m" => 'allocated');
-        foreach my ($i, $ptr) ( indexed $block->allocated ) {
-            push @out => sprintf "\e[48;2;%d;%d;%d;m${count_fmt} ┊${value_fmt}\e[0m" => $used_colors{ refaddr $ptr }->@*, $i, $ptr->to_string
+        if ($block->allocated) {
+            foreach my ($i, $ptr) ( indexed $block->allocated ) {
+                push @out => sprintf "\e[48;2;%d;%d;%d;m${count_fmt} ┊${value_fmt}\e[0m" => $used_colors{ refaddr $ptr }->@*, $i, $ptr->to_string
+            }
+        } else {
+            push @out => (sprintf "\e[2m      ┊${value_fmt}\e[0m" => '~');
         }
 
         push @out => (sprintf "\e[4m${title_fmt}\e[0m" => 'freed');
-        foreach my ($i, $ptr) ( indexed $block->freed ) {
-            push @out => sprintf "\e[38;5;240m${count_fmt} ┊${value_fmt}\e[0m" => $i, $ptr->to_string
+        if ($block->freed) {
+            foreach my ($i, $ptr) ( indexed $block->freed ) {
+                push @out => sprintf "\e[38;5;240m${count_fmt} ┊${value_fmt}\e[0m" => $i, $ptr->to_string
+            }
+        } else {
+            push @out => (sprintf "\e[2m      ┊${value_fmt}\e[0m" => '~');
         }
 
         return @out;

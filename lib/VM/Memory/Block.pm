@@ -7,6 +7,7 @@ use List::Util;
 
 use VM::Errors;
 
+use VM::Value::NULL;
 use VM::Memory::Pointer;
 
 class VM::Memory::Block {
@@ -18,6 +19,8 @@ class VM::Memory::Block {
     field @freed     :reader;
 
     field $next_addr = 0;
+
+    my $NULL = VM::Value::NULL->new;
 
     method available { $capacity - $next_addr }
 
@@ -48,7 +51,7 @@ class VM::Memory::Block {
             size    => $allocated,
         );
 
-        $words[ $_ ] = 0E0 foreach $pointer->address_range;
+        $words[ $_ ] = $NULL foreach $pointer->address_range;
 
         push @allocated => $pointer;
 

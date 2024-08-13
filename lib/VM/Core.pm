@@ -45,7 +45,7 @@ class VM::Core {
     method pop       { $stack[$sp--]      }
     method peek      { $stack[$sp]        }
 
-    method stack_index ($idx) { $stack[$idx] }
+    method stack_index :lvalue ($idx) { $stack[$idx] }
 
     method next_op { $code[$pc++] }
 
@@ -72,7 +72,11 @@ class VM::Core {
             if ($debugger) {
                 print "\e[2J\e[H\n";
                 say join "\n" => $debugger->draw;
-                my $x = <>;
+                if (my $sleep = $ENV{CLOCK}) {
+                    Time::HiRes::sleep($sleep);
+                } else {
+                    my $x = <>;
+                }
             }
         }
     }

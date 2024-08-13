@@ -14,6 +14,11 @@ class VM::Errors {
     our @ERRORS;
     BEGIN {
         @ERRORS = qw[
+            ILLEGAL_DIVISION_BY_ZERO
+            ILLEGAL_MOD_BY_ZERO
+
+
+
             INVALID_POINTER
 
             POINTER_UNDERFLOW

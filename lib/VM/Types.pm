@@ -8,6 +8,7 @@ use VM::Internal::Tools;
 class VM::Types {
     class VM::Types::Type :isa(VM::Internal::Tools::Enum) {}
 
+    use constant NULL    => VM::Types::Type->new( int => 0, label => 'NULL' );
     use constant INT     => VM::Types::Type->new( int => 1, label => 'INT' );
     use constant FLOAT   => VM::Types::Type->new( int => 2, label => 'FLOAT' );
     use constant CHAR    => VM::Types::Type->new( int => 3, label => 'CHAR' );

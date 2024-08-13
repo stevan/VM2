@@ -23,21 +23,25 @@ class VM::Memory::Pointer {
 
     method inc {
         throw VM::Errors->POINTER_OVERFLOW  if (($offset + 1) * $stride) > $size;
-        $offset++
+        $offset++;
+        $self;
     }
 
     method dec {
         throw VM::Errors->POINTER_UNDERFLOW if $offset <= 0;
         $offset--;
+        $self;
     }
 
     method reset {
         $offset = 0;
+        $self;
     }
 
     method index ($idx) {
         throw VM::Errors->POINTER_OVERFLOW  if ($idx * $stride) > ($size - 1);
-        $offset = $idx
+        $offset = $idx;
+        $self;
     }
 
     method to_string { sprintf '*<%04d:%d>[%d]' => $address, $size, $offset }

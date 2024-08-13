@@ -3,7 +3,8 @@
 use v5.40;
 use experimental qw[ class ];
 
-use List::Util ();
+use List::Util  ();
+use Time::HiRes ();
 
 use VM::Debugger::Stack;
 use VM::Debugger::Memory;
