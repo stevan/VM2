@@ -6,9 +6,11 @@ use experimental qw[ class builtin ];
 use VM::Internal::Tools;
 
 class VM::Types {
-    use constant INT     => enum  1, 'INT';
-    use constant FLOAT   => enum  2, 'FLOAT';
-    use constant CHAR    => enum  3, 'CHAR';
-    use constant BOOL    => enum  4, 'BOOL';
-    use constant POINTER => enum  5, 'POINTER';
+    class VM::Types::Type :isa(VM::Internal::Tools::Enum) {}
+
+    use constant INT     => VM::Types::Type->new( int => 1, label => 'INT' );
+    use constant FLOAT   => VM::Types::Type->new( int => 2, label => 'FLOAT' );
+    use constant CHAR    => VM::Types::Type->new( int => 3, label => 'CHAR' );
+    use constant BOOL    => VM::Types::Type->new( int => 4, label => 'BOOL' );
+    use constant POINTER => VM::Types::Type->new( int => 5, label => 'POINTER' );
 }

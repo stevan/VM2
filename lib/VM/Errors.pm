@@ -6,6 +6,8 @@ use experimental qw[ class builtin ];
 use VM::Internal::Tools;
 
 class VM::Errors {
+    class VM::Errors::Error :isa(VM::Internal::Tools::Enum) {}
+
     our @ERRORS;
     BEGIN {
         @ERRORS = qw[
@@ -23,9 +25,9 @@ class VM::Errors {
         ];
         foreach my $i ( 0 .. $#ERRORS ) {
             no strict 'refs';
-            my $op   = $ERRORS[$i];
-            my $enum = enum $i++, $op;
-            constant->import( $op => $enum );
+            my $e    = $ERRORS[$i];
+            my $enum = VM::Errors::Error->new( int => $i++, label => $e );
+            constant->import( $e => $enum );
         }
     }
 }

@@ -7,16 +7,6 @@ use builtin      qw[ export_lexically ];
 use Scalar::Util ();
 use constant     ();
 
-package VM::Internal::Tools {
-    sub import {
-        export_lexically(
-            '&enum' => \&enum
-        )
-    }
-
-    sub enum ($i, $s) { VM::Internal::Tools::Enum->new( int => $i, label => $s ) }
-}
-
 class VM::Internal::Tools::Enum {
     use overload '""' => 'to_string',
                  '0+' => 'to_int';

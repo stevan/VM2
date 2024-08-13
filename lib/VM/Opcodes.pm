@@ -15,8 +15,6 @@ use VM::Value::FALSE;
 use VM::Value::POINTER;
 
 class VM::Opcodes {
-    use constant ();
-
     class VM::Opcodes::Opcode :isa(VM::Internal::Tools::Enum) {}
 
     our @OPCODES;
