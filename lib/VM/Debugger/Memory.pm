@@ -4,7 +4,7 @@ use v5.40;
 use experimental qw[ class ];
 
 class VM::Debugger::Memory {
-    field $vm     :param :reader;
+    field $block  :param :reader;
     field $width  :param :reader = 30;
 
     field $count_fmt;
@@ -20,7 +20,6 @@ class VM::Debugger::Memory {
     }
 
     method draw {
-        my $block  = $vm->core->heap;
         my @words  = $block->words;
         my %freed  = map { refaddr $_, $_ } $block->freed;
         my @sorted = sort { $a->base_address <=> $b->base_address } ($block->allocated, $block->freed);

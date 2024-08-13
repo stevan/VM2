@@ -25,6 +25,8 @@ class VM {
         );
     }
 
+    method heap { $core->heap }
+
     method assemble (@source) {
         $assembler->assemble(\@source);
 
