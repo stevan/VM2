@@ -2,6 +2,9 @@
 
 use v5.40;
 use experimental qw[ class builtin ];
+use builtin      qw[ export_lexically ];
+
+use Carp ();
 
 use VM::Internal::Tools;
 
@@ -30,4 +33,12 @@ class VM::Errors {
             constant->import( $e => $enum );
         }
     }
+
+    sub import {
+        export_lexically(
+            '&throw' => \&throw
+        );
+    }
+
+    sub throw ($e) { Carp::confess("$e") }
 }

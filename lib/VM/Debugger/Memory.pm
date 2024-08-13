@@ -21,7 +21,7 @@ class VM::Debugger::Memory {
         my $block  = $vm->core->heap;
         my @words  = $block->words;
         my %freed  = map { refaddr $_, $_ } $block->freed;
-        my @sorted = sort { $a->address <=> $b->address } ($block->allocated, $block->freed);
+        my @sorted = sort { $a->base_address <=> $b->base_address } ($block->allocated, $block->freed);
 
         my @out;
         push @out => ('=' x $width);

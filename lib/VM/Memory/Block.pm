@@ -32,7 +32,7 @@ class VM::Memory::Block {
             # find one with the right size ...
             my $available = List::Util::first { $_->size == $allocated } @freed;
             # otherwise we are out of memory
-            die VM::Errors->OUT_OF_MEMORY if not defined $available;
+            throw VM::Errors->OUT_OF_MEMORY if not defined $available;
             # but if we did, just use that base address
             $addr = $available->base_address;
             # and now remove it from the freed list
@@ -58,7 +58,7 @@ class VM::Memory::Block {
     method is_freed ($p) { List::Util::first { refaddr $p == refaddr $_ } @freed }
 
     method free ($pointer) {
-        die VM::Errors->POINTER_ALREADY_FREED if $self->is_freed( $pointer );
+        throw VM::Errors->POINTER_ALREADY_FREED if $self->is_freed( $pointer );
 
         @allocated = grep { refaddr $pointer != refaddr $_ } @allocated;
         $words[ $_ ] = undef foreach $pointer->address_range;
@@ -66,12 +66,12 @@ class VM::Memory::Block {
     }
 
     method resolve :lvalue ($pointer) {
-        die VM::Errors->INVALID_POINTER if $self->is_freed( $pointer );
+        throw VM::Errors->INVALID_POINTER if $self->is_freed( $pointer );
 
         my $address = $pointer->address;
 
-        die VM::Errors->MEMORY_OVERFLOW  if $address > ($capacity - 1);
-        die VM::Errors->MEMORY_UNDERFLOW if $address < 0;
+        throw VM::Errors->MEMORY_OVERFLOW  if $address > ($capacity - 1);
+        throw VM::Errors->MEMORY_UNDERFLOW if $address < 0;
 
         $words[ $address ];
     }

@@ -17,16 +17,28 @@ class VM::Memory::Pointer {
     method last_address  { ($address + ($size - 1)) }
     method address_range { $address .. $self->last_address }
 
-    method address {
-        die VM::Errors->POINTER_OVERFLOW  if ($offset * $stride) > ($size - 1);
-        die VM::Errors->POINTER_UNDERFLOW if $offset < 0;
-        $address + ($offset * $stride)
+    method length { $size / $stride }
+
+    method address { $address + ($offset * $stride) }
+
+    method inc {
+        throw VM::Errors->POINTER_OVERFLOW  if (($offset + 1) * $stride) > $size;
+        $offset++
     }
 
-    method inc { $offset++ }
-    method dec { $offset-- }
+    method dec {
+        throw VM::Errors->POINTER_UNDERFLOW if $offset <= 0;
+        $offset--;
+    }
 
-    method index ($idx) { $offset = $idx }
+    method reset {
+        $offset = 0;
+    }
+
+    method index ($idx) {
+        throw VM::Errors->POINTER_OVERFLOW  if ($idx * $stride) > ($size - 1);
+        $offset = $idx
+    }
 
     method to_string { sprintf '*<%04d:%d>[%d]' => $address, $size, $offset }
 }
