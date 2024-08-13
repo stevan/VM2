@@ -9,12 +9,14 @@ class VM::Debugger::Memory {
 
     field $count_fmt;
     field $value_fmt;
+    field $title_fmt;
 
     field %used_colors;
 
     ADJUST {
         $count_fmt = "%05d";
         $value_fmt = "%".($width - 7)."s"; # 5 for the counter, 2 for the divider
+        $title_fmt = "%-${width}s";
     }
 
     method draw {
@@ -37,17 +39,17 @@ class VM::Debugger::Memory {
 
         }
 
-        push @out => ('-' x $width);
-        push @out => (sprintf 'Allocated:');
+        push @out => (sprintf "\e[1m${title_fmt}\e[0m" => '══ Pointers '.('═' x ($width - 12)));
+
+        push @out => (sprintf "\e[4m${title_fmt}\e[0m" => 'allocated');
         foreach my ($i, $ptr) ( indexed $block->allocated ) {
             push @out => sprintf "\e[48;2;%d;%d;%d;m${count_fmt} ┊${value_fmt}\e[0m" => $used_colors{ refaddr $ptr }->@*, $i, $ptr->to_string
         }
-        push @out => ('-' x $width);
-        push @out => ('Freed:');
+
+        push @out => (sprintf "\e[4m${title_fmt}\e[0m" => 'freed');
         foreach my ($i, $ptr) ( indexed $block->freed ) {
             push @out => sprintf "\e[38;5;240m${count_fmt} ┊${value_fmt}\e[0m" => $i, $ptr->to_string
         }
-        push @out => ('=' x $width);
 
         return @out;
     }

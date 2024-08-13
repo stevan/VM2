@@ -32,6 +32,18 @@ $vm->assemble(
         HALT
 );
 
+my $block = $vm->core->heap;
+my $ptr = $block->alloc(5, 1);
+
+{
+    my $i = 0;
+    while ($ptr->offset < $ptr->length) {
+        $block->resolve($ptr) = i(++$i);
+        warn join ' : ', $ptr, $block->resolve($ptr), refaddr $block->resolve($ptr);
+        $ptr->inc;
+    }
+}
+
 $vm->execute(
     VM::Debugger->new( vm => $vm )
 );
