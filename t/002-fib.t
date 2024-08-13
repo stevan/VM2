@@ -12,6 +12,16 @@ use VM::Debugger;
 
 my $vm = VM->new;
 
+=pod
+
+int fib (int i) {
+    if (i == 0) return 0;
+    if (i <  3) return 1;
+    return fib( i - 1 ) + fib( i - 2 );
+}
+
+=cut
+
 $vm->assemble(
         label('.fib'),
             LOAD_ARG, 0,
@@ -42,7 +52,7 @@ $vm->assemble(
             RETURN,
 
         label('.main'),
-            CONST_INT, i(20),
+            CONST_INT, i(10),
             CALL, label('#fib'), 1,
             PUT,
             HALT,
