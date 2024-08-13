@@ -32,27 +32,57 @@ class VM::Debugger::Code {
         my @code      = $asm->code->@*;
         my %label_at = $asm->addr_to_label->%*;
 
+        my sub handle_prev_op ($op, $acc) {
+            my ($fmt, $op_color, $oper_color, $reset);
+            if ($cpu->ci == $op->[0]) {
+                $fmt        = $active_fmt;
+                $op_color   = "";
+                $oper_color = "";
+                $reset      = "";
+            } else {
+                $fmt        = $inactive_fmt;
+                $op_color   = "\e[0;32m";
+                $oper_color = "\e[0;34m";
+                $reset      = "\e[0m";
+            }
+
+            my @operands = map {
+                $_ isa VM::Opcodes::Address
+                    ? $label_at{ $_->address }
+                    : $_
+            } @$acc;
+
+            @$acc = ();
+
+            my @out;
+            if (exists $label_at{ $op->[0] }) {
+                push @out => sprintf $label_fmt => $label_at{ $op->[0] };
+            }
+
+            push @out => sprintf $fmt, $op->[0],
+                         sprintf "${op_color}%-s${oper_color}%".(($width - 7) - length $op->[1]->label)."s${reset}",
+                         $op->[1],
+                         join ', ' => @operands;
+
+            return @out;
+        }
+
         my @out;
         my @acc;
+        my $prev_op;
         foreach my ($i, $code) (indexed @code) {
-            if (exists $label_at{ $i }) {
-                push @out => sprintf $label_fmt => $label_at{ $i };
-            }
-
-            #if ($code isa )
-
-            my $fmt;
-            if ($ci == $i) {
-                $fmt = $active_fmt;
+            if ($code isa VM::Opcodes::Opcode) {
+                if ($prev_op) {
+                    push @out => handle_prev_op($prev_op, \@acc);
+                }
+                $prev_op = [ $i, $code ];
             } else {
-                $fmt = $inactive_fmt;
+                push @acc => $code;
             }
+        }
 
-            if ($code isa VM::Opcodes::Address) {
-                push @out => sprintf $fmt, $i, $label_at{ $code->address };
-            } else {
-                push @out => sprintf $fmt, $i, $code;
-            }
+        if ($prev_op) {
+            push @out => handle_prev_op($prev_op, \@acc);
         }
 
         return @out;
