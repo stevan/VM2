@@ -32,6 +32,8 @@ class VM::Debugger::Stack {
         $active_fmt   = "${count_fmt} %s\e[0;36m${value_fmt}\e[0m";
     }
 
+    method set_height ($h) { $height = $h }
+
     method draw {
         my $cpu   = $vm->core;
         my $fp    = $cpu->fp;

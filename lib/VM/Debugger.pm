@@ -38,6 +38,9 @@ class VM::Debugger {
 
         my $height = List::Util::max( $code_height, $stack_height, $heap_height );
 
+        $stack->set_height( $height );
+        $stack_height = $height;
+
         my @out;
 
         push @out => (join ' ' =>
