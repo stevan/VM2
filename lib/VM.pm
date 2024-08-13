@@ -17,14 +17,14 @@ class VM {
     field $core      :reader;
     field $memory    :reader;
 
-    field @out_buffer;
+    field @output_buffer :reader;
 
     ADJUST {
         $assembler = VM::Assembler->new;
         $memory    = VM::Memory->new;
         $core      = VM::Core->new(
-            heap       => $memory->allocate_block( $heap_size ),
-            out_buffer => \@out_buffer
+            heap          => $memory->allocate_block( $heap_size ),
+            output_buffer => \@output_buffer
         );
     }
 
@@ -46,8 +46,8 @@ class VM {
             warn $e;
         }
 
-        if (@out_buffer) {
-            say @out_buffer;
+        if (!DEBUG && @output_buffer) {
+            say @output_buffer;
         }
     }
 }

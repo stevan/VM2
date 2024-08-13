@@ -4,6 +4,8 @@ use v5.40;
 use experimental qw[ class builtin ];
 use builtin      qw[ export_lexically ];
 
+use Sub::Util ();
+
 use VM::Opcodes;
 
 use VM::Assembler::Label;
@@ -18,18 +20,24 @@ use VM::Value::POINTER;
 package VM::Assembler::Assembly {
     sub import ($,@) {
         my %exports = (
-            '&i' => sub ($i) { VM::Value::INT   ->new( value => $i ) },
-            '&f' => sub ($f) { VM::Value::FLOAT ->new( value => $f ) },
-            '&c' => sub ($c) { VM::Value::CHAR  ->new( value => $c ) },
+            '&i' => \&i,
+            '&f' => \&f,
+            '&c' => \&c,
 
-            '&label' => sub ($l) { VM::Assembler::Label->new( label => $l ) }
+            '&label' => \&label,
         );
 
         foreach my $opcode ( @VM::Opcodes::OPCODES ) {
             my $code = VM::Opcodes->$opcode;
-            $exports{ sprintf '&%s' => $opcode } = sub () { $code };
+            $exports{ sprintf '&%s' => $opcode } = Sub::Util::set_subname( $opcode, sub () { $code } );
         }
 
         export_lexically( %exports );
     }
+
+    sub i ($i) { VM::Value::INT   ->new( value => $i ) }
+    sub f ($f) { VM::Value::FLOAT ->new( value => $f ) }
+    sub c ($c) { VM::Value::CHAR  ->new( value => $c ) }
+
+    sub label ($l) { VM::Assembler::Label->new( label => $l ) }
 }

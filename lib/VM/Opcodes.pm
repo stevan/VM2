@@ -60,7 +60,7 @@ class VM::Opcodes {
             CALL
             RETURN
 
-            PRINT
+            PUT
 
             DUP
             POP
@@ -285,9 +285,9 @@ class VM::Opcodes {
         ## Output
         ## ----------------------------------------------------------
 
-        $MICROCODE[PRINT] = Sub::Util::set_subname( PRINT => sub ($cpu) {
+        $MICROCODE[PUT] = Sub::Util::set_subname( PUT => sub ($cpu) {
             my $arg = $cpu->pop;
-            $cpu->to_out_buffer( $arg );
+            $cpu->push_to_output_buffer( $arg );
         });
 
         ## ----------------------------------------------------------

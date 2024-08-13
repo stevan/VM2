@@ -7,7 +7,7 @@ use VM::Opcodes;
 
 class VM::Core {
     field $heap       :param :reader;
-    field $out_buffer :param :reader;
+    field $output_buffer :param :reader;
 
     field @code  :reader;
     field @stack :reader;
@@ -42,7 +42,7 @@ class VM::Core {
 
     method error :lvalue { $error }
 
-    method to_out_buffer ($v) { unshift @$out_buffer => $v; }
+    method push_to_output_buffer ($v) { push @$output_buffer => $v; }
 
     method push ($v) { $stack[++$sp] = $v }
     method pop       { $stack[$sp--]      }

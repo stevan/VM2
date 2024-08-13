@@ -38,7 +38,6 @@ class VM::Debugger {
 
         my $height = List::Util::max( $code_height, $stack_height, $heap_height );
 
-
         my @out;
 
         push @out => (join ' ' =>
@@ -59,6 +58,14 @@ class VM::Debugger {
             ('╰─'.('─' x $code_width) .'─╯'),
             ('╰─'.('─' x $stack_width).'─╯'),
             ('╰─'.('─' x $heap_width) .'─╯'),
+        );
+
+        my $width = List::Util::sum( $code_width, $stack_width, $heap_width ) + 10;
+
+        push @out => (
+            ('╭── Output '  .('─' x ($width  - 9)).'─╮'),
+            ('│ '.(sprintf "%-${width}s" => join '' => map $_->value, $vm->output_buffer).' │'),
+            ('╰─'.           ('─' x $width)       .'─╯'),
         );
 
         return @out;

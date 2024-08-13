@@ -42,13 +42,9 @@ $vm->assemble(
             RETURN,
 
         label('.main'),
-            CONST_INT, i(3),
+            CONST_INT, i(20),
             CALL, label('#fib'), 1,
-
-            #FORMAT_STR, "VM: %d", 1,
-            #DUP,
-            PRINT,
-            #FREE_MEM,
+            PUT,
             HALT,
 );
 
