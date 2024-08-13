@@ -41,6 +41,7 @@ $vm->assemble(
     label('.main.while.break'),
 
         LOAD, 0,
+        PRINT,
         HALT,
 );
 

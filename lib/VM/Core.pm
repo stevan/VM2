@@ -6,7 +6,8 @@ use experimental qw[ class ];
 use VM::Opcodes;
 
 class VM::Core {
-    field $heap :param :reader;
+    field $heap       :param :reader;
+    field $out_buffer :param :reader;
 
     field @code  :reader;
     field @stack :reader;
@@ -40,6 +41,8 @@ class VM::Core {
     }
 
     method error :lvalue { $error }
+
+    method to_out_buffer ($v) { unshift @$out_buffer => $v; }
 
     method push ($v) { $stack[++$sp] = $v }
     method pop       { $stack[$sp--]      }

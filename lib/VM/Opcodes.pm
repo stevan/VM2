@@ -287,7 +287,7 @@ class VM::Opcodes {
 
         $MICROCODE[PRINT] = Sub::Util::set_subname( PRINT => sub ($cpu) {
             my $arg = $cpu->pop;
-            #print $arg->to_string;
+            $cpu->to_out_buffer( $arg );
         });
 
         ## ----------------------------------------------------------

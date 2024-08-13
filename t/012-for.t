@@ -51,6 +51,7 @@ $vm->assemble(
         label('.main.for.end'),
 
         LOAD, 0,
+        PRINT,
         HALT,
 );
 
