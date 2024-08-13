@@ -19,7 +19,7 @@ class VM::Debugger {
     ADJUST {
         $code  = VM::Debugger::Code   ->new( vm => $vm );
         $stack = VM::Debugger::Stack  ->new( vm => $vm );
-        $heap  = VM::Debugger::Memory ->new( vm => $vm->heap );
+        $heap  = VM::Debugger::Memory ->new( block => $vm->heap );
     }
 
     method draw {

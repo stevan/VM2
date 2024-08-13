@@ -12,7 +12,7 @@ my $vm = VM->new( heap_size => 10 );
 
 my $block = $vm->core->heap;
 
-my $bdebug = VM::Debugger::Memory->new( vm => $vm );
+my $bdebug = VM::Debugger::Memory->new( block => $block );
 
 my $ptr = $block->alloc(5, 1);
 
