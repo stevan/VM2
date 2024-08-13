@@ -27,6 +27,10 @@ class VM::Opcodes {
             CONST_FALSE
 
             ADD_INT
+            SUB_INT
+
+            EQ_INT
+            LT_INT
 
             JUMP
             JUMP_IF_FALSE
@@ -80,6 +84,28 @@ class VM::Opcodes {
             my $rhs = $cpu->pop;
             my $lhs = $cpu->pop;
             $cpu->push( VM::Value::INT->new( value => $lhs->value + $rhs->value ) );
+        });
+
+        $MICROCODE[SUB_INT] = Sub::Util::set_subname( SUB_INT => sub ($cpu) {
+            my $rhs = $cpu->pop;
+            my $lhs = $cpu->pop;
+            $cpu->push( VM::Value::INT->new( value => $lhs->value - $rhs->value ) );
+        });
+
+        ## ----------------------------------------------------------
+        ## Logic
+        ## ----------------------------------------------------------
+
+        $MICROCODE[EQ_INT] = Sub::Util::set_subname( EQ_INT => sub ($cpu) {
+            my $rhs = $cpu->pop;
+            my $lhs = $cpu->pop;
+            $cpu->push( $lhs->value == $rhs->value ? VM::Value::TRUE->new : VM::Value::FALSE->new );
+        });
+
+        $MICROCODE[LT_INT] = Sub::Util::set_subname( LT_INT => sub ($cpu) {
+            my $rhs = $cpu->pop;
+            my $lhs = $cpu->pop;
+            $cpu->push( $lhs->value < $rhs->value ? VM::Value::TRUE->new : VM::Value::FALSE->new );
         });
 
         ## ----------------------------------------------------------

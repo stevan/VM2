@@ -16,8 +16,8 @@ class VM::Debugger::Code {
     field $label_fmt;
 
     ADJUST {
-        $count_fmt = "%05d";
-        $value_fmt = "%".($width - 7)."s"; # 5 for the counter, 2 for the divider
+        $count_fmt = " %05d";
+        $value_fmt = "%".($width - 8)."s"; # 5 for the counter, 2 for the divider
 
         $active_fmt   = "\e[0;33m\e[7m${count_fmt} ▶${value_fmt}\e[0m";
         $inactive_fmt = "${count_fmt} ┊${value_fmt}\e[0m";
@@ -60,7 +60,7 @@ class VM::Debugger::Code {
             }
 
             push @out => sprintf $fmt, $op->[0],
-                         sprintf "${op_color}%-s${oper_color}%".(($width - 7) - length $op->[1]->label)."s${reset}",
+                         sprintf " ${op_color}%-s${oper_color}%".(($width - 10) - length $op->[1]->label)."s${reset} ",
                          $op->[1],
                          join ', ' => @operands;
 
