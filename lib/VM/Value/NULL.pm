@@ -8,5 +8,5 @@ use VM::Types;
 class VM::Value::NULL :isa(VM::Value) {
     method value { undef }
     method type  { VM::Types->NULL }
-    method to_string { '~n' }
+    method to_string { '*n' }
 }
