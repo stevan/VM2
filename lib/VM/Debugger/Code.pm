@@ -33,10 +33,13 @@ class VM::Debugger::Code {
         my %label_at = $asm->addr_to_label->%*;
 
         my @out;
+        my @acc;
         foreach my ($i, $code) (indexed @code) {
             if (exists $label_at{ $i }) {
                 push @out => sprintf $label_fmt => $label_at{ $i };
             }
+
+            #if ($code isa )
 
             my $fmt;
             if ($ci == $i) {

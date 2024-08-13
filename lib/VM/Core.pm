@@ -45,9 +45,13 @@ class VM::Core {
     method pop       { $stack[$sp--]      }
     method peek      { $stack[$sp]        }
 
+    method stack_index ($idx) { $stack[$idx] }
+
     method next_op { $code[$pc++] }
 
     method jump_to ($addr) { $pc = $addr }
+    method move_fp ($addr) { $fp = $addr }
+    method move_sp ($addr) { $sp = $addr }
 
     method halt {
         $running = false;

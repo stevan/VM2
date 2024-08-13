@@ -35,6 +35,10 @@ class VM {
     }
 
     method execute ($debugger=undef) {
-        $core->execute( DEBUG ? $debugger : () );
+        try {
+            $core->execute( DEBUG ? $debugger : () );
+        } catch ($e) {
+            warn $e;
+        }
     }
 }
