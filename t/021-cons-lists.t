@@ -3,12 +3,14 @@
 use v5.40;
 use experimental qw[ class builtin ];
 
-use Scalar::Util ();
-use Sub::Util    ();
-
 use VM;
 use VM::Assembler::Assembly;
 use VM::Debugger;
+
+
+my $vm = VM->new;
+
+=pod
 
 use Data::Dumper;
 
@@ -25,19 +27,7 @@ sub rev ($n) {
     }
 }
 
-
-
-#die Dumper { RESULT => rev( ['o', ['l', ['l', ['e', ['h', undef]]]]] ) };
-
-
-my $vm = VM->new;
-
-=pod
-
-    let reversedHead = recursivelyReverseList(head.next);
-    head.next.next = head;
-    head.next = null;
-    return reversedHead;
+die Dumper { RESULT => rev( ['o', ['l', ['l', ['e', ['h', undef]]]]] ) };
 
 =cut
 
