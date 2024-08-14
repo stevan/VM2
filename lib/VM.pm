@@ -5,6 +5,7 @@ use experimental qw[ class ];
 
 use VM::Core;
 use VM::Memory;
+use VM::Channel;
 
 use VM::Assembler;
 
@@ -17,14 +18,19 @@ class VM {
     field $core      :reader;
     field $memory    :reader;
 
-    field @output_buffer :reader;
+    field $output_channel :reader;
+    field $input_channel  :reader;
 
     ADJUST {
+        $output_channel = VM::Channel->new;
+        $input_channel  = VM::Channel->new;
+
         $assembler = VM::Assembler->new;
         $memory    = VM::Memory->new;
         $core      = VM::Core->new(
-            heap          => $memory->allocate_block( $heap_size ),
-            output_buffer => \@output_buffer
+            heap           => $memory->allocate_block( $heap_size ),
+            output_channel => $output_channel,
+            input_channel  => $input_channel
         );
     }
 
@@ -44,10 +50,6 @@ class VM {
             $core->execute( DEBUG ? $debugger : () );
         } catch ($e) {
             warn $e;
-        }
-
-        if (!DEBUG && @output_buffer) {
-            say @output_buffer;
         }
     }
 }

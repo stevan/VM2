@@ -65,8 +65,14 @@ class VM::Debugger {
         my $width = sum( $code_width, $stack_width, $heap_width ) + 10;
 
         push @out => (
+            ('╭── Input '  .('─' x ($width  - 10)).'─╮'),
+            ('│ '.(sprintf "%-${width}s" => join '' => map $_->value, $vm->input_channel->buffer).' │'),
+            ('╰─'.           ('─' x $width)       .'─╯'),
+        );
+
+        push @out => (
             ('╭── Output '  .('─' x ($width  - 9)).'─╮'),
-            ('│ '.(sprintf "%-${width}s" => join '' => map $_->value, $vm->output_buffer).' │'),
+            ('│ '.(sprintf "%-${width}s" => join '' => map $_->value, $vm->output_channel->buffer).' │'),
             ('╰─'.           ('─' x $width)       .'─╯'),
         );
 

@@ -39,6 +39,15 @@ class VM::Opcodes {
             LT_INT
             GT_INT
 
+            EQ_CHAR
+            LT_CHAR
+            GT_CHAR
+            LE_CHAR
+            GE_CHAR
+
+            AND
+            OR
+
             IS_NULL
 
             JUMP
@@ -61,6 +70,9 @@ class VM::Opcodes {
             RETURN
 
             PUT
+            GET_CHAR
+            GET_INT
+            GET_FLOAT
 
             DUP
             POP
@@ -171,6 +183,53 @@ class VM::Opcodes {
             my $rhs = $cpu->pop;
             my $lhs = $cpu->pop;
             $cpu->push( $lhs->value > $rhs->value ? VM::Value::TRUE->new : VM::Value::FALSE->new );
+        });
+
+
+        $MICROCODE[EQ_CHAR] = set_subname( EQ_CHAR => sub ($cpu) {
+            my $rhs = $cpu->pop;
+            my $lhs = $cpu->pop;
+            $cpu->push( $lhs->value eq $rhs->value ? VM::Value::TRUE->new : VM::Value::FALSE->new );
+        });
+
+        $MICROCODE[LT_CHAR] = set_subname( LT_CHAR => sub ($cpu) {
+            my $rhs = $cpu->pop;
+            my $lhs = $cpu->pop;
+            $cpu->push( $lhs->value lt $rhs->value ? VM::Value::TRUE->new : VM::Value::FALSE->new );
+        });
+
+        $MICROCODE[GT_CHAR] = set_subname( GT_CHAR => sub ($cpu) {
+            my $rhs = $cpu->pop;
+            my $lhs = $cpu->pop;
+            $cpu->push( $lhs->value gt $rhs->value ? VM::Value::TRUE->new : VM::Value::FALSE->new );
+        });
+
+        $MICROCODE[LE_CHAR] = set_subname( LTE_CHAR => sub ($cpu) {
+            my $rhs = $cpu->pop;
+            my $lhs = $cpu->pop;
+            $cpu->push( $lhs->value le $rhs->value ? VM::Value::TRUE->new : VM::Value::FALSE->new );
+        });
+
+        $MICROCODE[GE_CHAR] = set_subname( GTE_CHAR => sub ($cpu) {
+            my $rhs = $cpu->pop;
+            my $lhs = $cpu->pop;
+            $cpu->push( $lhs->value ge $rhs->value ? VM::Value::TRUE->new : VM::Value::FALSE->new );
+        });
+
+        ## ----------------------------------------------------------
+        ## Logical
+        ## ----------------------------------------------------------
+
+        $MICROCODE[AND] = set_subname( AND => sub ($cpu) {
+            my $rhs = $cpu->pop;
+            my $lhs = $cpu->pop;
+            $cpu->push( $lhs->value && $rhs->value ? VM::Value::TRUE->new : VM::Value::FALSE->new );
+        });
+
+        $MICROCODE[OR] = set_subname( OR => sub ($cpu) {
+            my $rhs = $cpu->pop;
+            my $lhs = $cpu->pop;
+            $cpu->push( $lhs->value || $rhs->value ? VM::Value::TRUE->new : VM::Value::FALSE->new );
         });
 
         ## ----------------------------------------------------------
@@ -287,7 +346,19 @@ class VM::Opcodes {
 
         $MICROCODE[PUT] = set_subname( PUT => sub ($cpu) {
             my $arg = $cpu->pop;
-            $cpu->push_to_output_buffer( $arg );
+            $cpu->output_channel->put( $arg );
+        });
+
+        $MICROCODE[GET_CHAR] = set_subname( GET_CHAR => sub ($cpu) {
+            $cpu->push( $cpu->input_channel->get(VM::Types->CHAR) );
+        });
+
+        $MICROCODE[GET_INT] = set_subname( GET_INT => sub ($cpu) {
+            $cpu->push( $cpu->input_channel->get(VM::Types->INT) );
+        });
+
+        $MICROCODE[GET_FLOAT] = set_subname( GET_FLOAT => sub ($cpu) {
+            $cpu->push( $cpu->input_channel->get(VM::Types->FLOAT) );
         });
 
         ## ----------------------------------------------------------

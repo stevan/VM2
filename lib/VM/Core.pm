@@ -8,8 +8,9 @@ use importer 'Time::HiRes' => qw[ sleep ];
 use VM::Opcodes;
 
 class VM::Core {
-    field $heap       :param :reader;
-    field $output_buffer :param :reader;
+    field $heap           :param :reader;
+    field $output_channel :param :reader;
+    field $input_channel  :param :reader;
 
     field @code  :reader;
     field @stack :reader;
@@ -43,8 +44,6 @@ class VM::Core {
     }
 
     method error :lvalue { $error }
-
-    method push_to_output_buffer ($v) { push @$output_buffer => $v; }
 
     method push ($v) { $stack[++$sp] = $v }
     method pop       { $stack[$sp--]      }
