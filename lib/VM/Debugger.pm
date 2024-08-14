@@ -3,8 +3,7 @@
 use v5.40;
 use experimental qw[ class ];
 
-use List::Util  ();
-use Time::HiRes ();
+use importer 'List::Util'  => qw[ max sum ];
 
 use VM::Debugger::Stack;
 use VM::Debugger::Memory;
@@ -36,7 +35,7 @@ class VM::Debugger {
         my $stack_height = $#stack;
         my $heap_height  = $#heap;
 
-        my $height = List::Util::max( $code_height, $stack_height, $heap_height );
+        my $height = max( $code_height, $stack_height, $heap_height );
 
         $stack->set_height( $height );
         $stack_height = $height;
@@ -63,7 +62,7 @@ class VM::Debugger {
             ('╰─'.('─' x $heap_width) .'─╯'),
         );
 
-        my $width = List::Util::sum( $code_width, $stack_width, $heap_width ) + 10;
+        my $width = sum( $code_width, $stack_width, $heap_width ) + 10;
 
         push @out => (
             ('╭── Output '  .('─' x ($width  - 9)).'─╮'),

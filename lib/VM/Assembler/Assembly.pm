@@ -4,7 +4,7 @@ use v5.40;
 use experimental qw[ class builtin ];
 use builtin      qw[ export_lexically ];
 
-use Sub::Util ();
+use importer 'Sub::Util' => qw[ set_subname ];
 
 use VM::Opcodes;
 
@@ -29,7 +29,7 @@ package VM::Assembler::Assembly {
 
         foreach my $opcode ( @VM::Opcodes::OPCODES ) {
             my $code = VM::Opcodes->$opcode;
-            $exports{ sprintf '&%s' => $opcode } = Sub::Util::set_subname( $opcode, sub () { $code } );
+            $exports{ sprintf '&%s' => $opcode } = set_subname( $opcode, sub () { $code } );
         }
 
         export_lexically( %exports );

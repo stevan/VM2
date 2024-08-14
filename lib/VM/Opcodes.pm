@@ -3,7 +3,7 @@
 use v5.40;
 use experimental qw[ class ];
 
-use Sub::Util ();
+use importer 'Sub::Util' => qw[ set_subname ];
 
 use VM::Internal::Tools;
 
@@ -78,35 +78,35 @@ class VM::Opcodes {
 
     our @MICROCODE;
     BEGIN {
-        $MICROCODE[HALT] = Sub::Util::set_subname( HALT => sub ($cpu) { $cpu->halt } );
+        $MICROCODE[HALT] = set_subname( HALT => sub ($cpu) { $cpu->halt } );
 
         ## ----------------------------------------------------------
         ## Constants
         ## ----------------------------------------------------------
 
-        $MICROCODE[CONST_NULL] = Sub::Util::set_subname( CONST_NULL => sub ($cpu) {
+        $MICROCODE[CONST_NULL] = set_subname( CONST_NULL => sub ($cpu) {
             $cpu->push( VM::Value::NULL->new );
         });
 
-        $MICROCODE[CONST_INT] = Sub::Util::set_subname( CONST_INT => sub ($cpu) {
+        $MICROCODE[CONST_INT] = set_subname( CONST_INT => sub ($cpu) {
             my $int = $cpu->next_op;
             $cpu->push( $int );
         });
 
-        $MICROCODE[CONST_CHAR] = Sub::Util::set_subname( CONST_CHAR => sub ($cpu) {
+        $MICROCODE[CONST_CHAR] = set_subname( CONST_CHAR => sub ($cpu) {
             my $char = $cpu->next_op;
             $cpu->push( $char );
         });
 
-        $MICROCODE[CONST_TRUE] = Sub::Util::set_subname( CONST_TRUE => sub ($cpu) {
+        $MICROCODE[CONST_TRUE] = set_subname( CONST_TRUE => sub ($cpu) {
             $cpu->push( VM::Value::TRUE->new );
         });
 
-        $MICROCODE[CONST_FALSE] = Sub::Util::set_subname( CONST_FALSE => sub ($cpu) {
+        $MICROCODE[CONST_FALSE] = set_subname( CONST_FALSE => sub ($cpu) {
             $cpu->push( VM::Value::FALSE->new );
         });
 
-        $MICROCODE[IS_NULL] = Sub::Util::set_subname( IS_NULL => sub ($cpu) {
+        $MICROCODE[IS_NULL] = set_subname( IS_NULL => sub ($cpu) {
             my $value = $cpu->pop;
             $cpu->push( $value isa VM::Value::NULL ? VM::Value::TRUE->new : VM::Value::FALSE->new );
         });
@@ -115,25 +115,25 @@ class VM::Opcodes {
         ## Math
         ## ----------------------------------------------------------
 
-        $MICROCODE[ADD_INT] = Sub::Util::set_subname( ADD_INT => sub ($cpu) {
+        $MICROCODE[ADD_INT] = set_subname( ADD_INT => sub ($cpu) {
             my $rhs = $cpu->pop;
             my $lhs = $cpu->pop;
             $cpu->push( VM::Value::INT->new( value => $lhs->value + $rhs->value ) );
         });
 
-        $MICROCODE[SUB_INT] = Sub::Util::set_subname( SUB_INT => sub ($cpu) {
+        $MICROCODE[SUB_INT] = set_subname( SUB_INT => sub ($cpu) {
             my $rhs = $cpu->pop;
             my $lhs = $cpu->pop;
             $cpu->push( VM::Value::INT->new( value => $lhs->value - $rhs->value ) );
         });
 
-        $MICROCODE[MUL_INT] = Sub::Util::set_subname( MUL_INT => sub ($cpu) {
+        $MICROCODE[MUL_INT] = set_subname( MUL_INT => sub ($cpu) {
             my $rhs = $cpu->pop;
             my $lhs = $cpu->pop;
             $cpu->push( VM::Value::INT->new( value => $lhs->value * $rhs->value ) );
         });
 
-        $MICROCODE[DIV_INT] = Sub::Util::set_subname( DIV_INT => sub ($cpu) {
+        $MICROCODE[DIV_INT] = set_subname( DIV_INT => sub ($cpu) {
             my $rhs = $cpu->pop;
             my $lhs = $cpu->pop;
             if ( $rhs == 0 ) {
@@ -142,7 +142,7 @@ class VM::Opcodes {
             $cpu->push( VM::Value::INT->new( value => $lhs->value / $rhs->value ) );
         });
 
-        $MICROCODE[MOD_INT] = Sub::Util::set_subname( MOD_INT => sub ($cpu) {
+        $MICROCODE[MOD_INT] = set_subname( MOD_INT => sub ($cpu) {
             my $rhs = $cpu->pop;
             my $lhs = $cpu->pop;
             if ( $rhs == 0 ) {
@@ -155,19 +155,19 @@ class VM::Opcodes {
         ## Logic
         ## ----------------------------------------------------------
 
-        $MICROCODE[EQ_INT] = Sub::Util::set_subname( EQ_INT => sub ($cpu) {
+        $MICROCODE[EQ_INT] = set_subname( EQ_INT => sub ($cpu) {
             my $rhs = $cpu->pop;
             my $lhs = $cpu->pop;
             $cpu->push( $lhs->value == $rhs->value ? VM::Value::TRUE->new : VM::Value::FALSE->new );
         });
 
-        $MICROCODE[LT_INT] = Sub::Util::set_subname( LT_INT => sub ($cpu) {
+        $MICROCODE[LT_INT] = set_subname( LT_INT => sub ($cpu) {
             my $rhs = $cpu->pop;
             my $lhs = $cpu->pop;
             $cpu->push( $lhs->value < $rhs->value ? VM::Value::TRUE->new : VM::Value::FALSE->new );
         });
 
-        $MICROCODE[GT_INT] = Sub::Util::set_subname( GT_INT => sub ($cpu) {
+        $MICROCODE[GT_INT] = set_subname( GT_INT => sub ($cpu) {
             my $rhs = $cpu->pop;
             my $lhs = $cpu->pop;
             $cpu->push( $lhs->value > $rhs->value ? VM::Value::TRUE->new : VM::Value::FALSE->new );
@@ -177,12 +177,12 @@ class VM::Opcodes {
         ## Jumps
         ## ----------------------------------------------------------
 
-        $MICROCODE[JUMP] = Sub::Util::set_subname( JUMP => sub ($cpu) {
+        $MICROCODE[JUMP] = set_subname( JUMP => sub ($cpu) {
             my $addr = $cpu->next_op;
             $cpu->jump_to( $addr->address );
         });
 
-        $MICROCODE[JUMP_IF_FALSE] = Sub::Util::set_subname( JUMP_IF_FALSE => sub ($cpu) {
+        $MICROCODE[JUMP_IF_FALSE] = set_subname( JUMP_IF_FALSE => sub ($cpu) {
             my $addr = $cpu->next_op;
             my $bool = $cpu->pop;
             if ( $bool isa VM::Value::FALSE ) {
@@ -190,7 +190,7 @@ class VM::Opcodes {
             }
         });
 
-        $MICROCODE[JUMP_IF_TRUE] = Sub::Util::set_subname( JUMP_IF_TRUE => sub ($cpu) {
+        $MICROCODE[JUMP_IF_TRUE] = set_subname( JUMP_IF_TRUE => sub ($cpu) {
             my $addr = $cpu->next_op;
             my $bool = $cpu->pop;
             if ( $bool isa VM::Value::TRUE ) {
@@ -202,12 +202,12 @@ class VM::Opcodes {
         ## subroutine calls
         ## ----------------------------------------------------------
 
-        $MICROCODE[LOAD_ARG] = Sub::Util::set_subname( LOAD_ARG => sub ($cpu) {
+        $MICROCODE[LOAD_ARG] = set_subname( LOAD_ARG => sub ($cpu) {
             my $offset = $cpu->next_op;
             $cpu->push( $cpu->stack_index(($cpu->fp - 3) - $offset) );
         });
 
-        $MICROCODE[CALL] = Sub::Util::set_subname( CALL => sub ($cpu) {
+        $MICROCODE[CALL] = set_subname( CALL => sub ($cpu) {
             my $addr = $cpu->next_op; # func address to go to
             my $argc = $cpu->next_op; # number of args the function has ...
             # stash the context ...
@@ -219,7 +219,7 @@ class VM::Opcodes {
             $cpu->jump_to( $addr->address ); # and the program counter to the func addr
         });
 
-        $MICROCODE[RETURN] = Sub::Util::set_subname( RETURN => sub ($cpu) {
+        $MICROCODE[RETURN] = set_subname( RETURN => sub ($cpu) {
             my $return_val = $cpu->pop; # pop the return value from the stack
 
             $cpu->move_sp( $cpu->fp  );         # restore stack pointer
@@ -236,12 +236,12 @@ class VM::Opcodes {
         ## Locals
         ## ----------------------------------------------------------
 
-        $MICROCODE[LOAD] = Sub::Util::set_subname( LOAD => sub ($cpu) {
+        $MICROCODE[LOAD] = set_subname( LOAD => sub ($cpu) {
             my $offset = $cpu->next_op;
             $cpu->push( $cpu->stack_index( $cpu->fp + $offset ) );
         });
 
-        $MICROCODE[STORE] = Sub::Util::set_subname( STORE => sub ($cpu) {
+        $MICROCODE[STORE] = set_subname( STORE => sub ($cpu) {
             my $value  = $cpu->pop;
             my $offset = $cpu->next_op;
             $cpu->stack_index( $cpu->fp + $offset ) = $value;
@@ -251,7 +251,7 @@ class VM::Opcodes {
         ## Memory
         ## ----------------------------------------------------------
 
-        $MICROCODE[ALLOC_MEM] = Sub::Util::set_subname( ALLOC_MEM => sub ($cpu) {
+        $MICROCODE[ALLOC_MEM] = set_subname( ALLOC_MEM => sub ($cpu) {
             my $size   = $cpu->pop;
             my $stride = $cpu->next_op;
 
@@ -259,14 +259,14 @@ class VM::Opcodes {
             $cpu->push( VM::Value::POINTER->new( value => $ptr ) );
         });
 
-        $MICROCODE[LOAD_MEM] = Sub::Util::set_subname( LOAD_MEM => sub ($cpu) {
+        $MICROCODE[LOAD_MEM] = set_subname( LOAD_MEM => sub ($cpu) {
             my $ptr    = $cpu->pop;
             my $offset = $cpu->pop;
 
             $cpu->push( $cpu->heap->resolve( $ptr->value->index( $offset->value ) ) );
         });
 
-        $MICROCODE[STORE_MEM] = Sub::Util::set_subname( STORE_MEM => sub ($cpu) {
+        $MICROCODE[STORE_MEM] = set_subname( STORE_MEM => sub ($cpu) {
             my $ptr    = $cpu->pop;
             my $offset = $cpu->pop;
             my $value  = $cpu->pop;
@@ -274,7 +274,7 @@ class VM::Opcodes {
             $cpu->heap->resolve( $ptr->value->index( $offset->value ) ) = $value;
         });
 
-        $MICROCODE[FREE_MEM] = Sub::Util::set_subname( FREE_MEM => sub ($cpu) {
+        $MICROCODE[FREE_MEM] = set_subname( FREE_MEM => sub ($cpu) {
             my $ptr = $cpu->pop;
 
             $cpu->heap->free( $ptr->value );
@@ -285,7 +285,7 @@ class VM::Opcodes {
         ## Output
         ## ----------------------------------------------------------
 
-        $MICROCODE[PUT] = Sub::Util::set_subname( PUT => sub ($cpu) {
+        $MICROCODE[PUT] = set_subname( PUT => sub ($cpu) {
             my $arg = $cpu->pop;
             $cpu->push_to_output_buffer( $arg );
         });
@@ -294,15 +294,15 @@ class VM::Opcodes {
         ## Stack Operaations
         ## ----------------------------------------------------------
 
-        $MICROCODE[DUP] = Sub::Util::set_subname( DUP => sub ($cpu) {
+        $MICROCODE[DUP] = set_subname( DUP => sub ($cpu) {
             $cpu->push( $cpu->peek );
         });
 
-        $MICROCODE[POP] = Sub::Util::set_subname( POP => sub ($cpu) {
+        $MICROCODE[POP] = set_subname( POP => sub ($cpu) {
             $cpu->pop;
         });
 
-        $MICROCODE[SWAP] = Sub::Util::set_subname( SWAP => sub ($cpu) {
+        $MICROCODE[SWAP] = set_subname( SWAP => sub ($cpu) {
             my $v1 = $cpu->pop;
             my $v2 = $cpu->pop;
             $cpu->push( $v1 );

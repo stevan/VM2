@@ -3,6 +3,8 @@
 use v5.40;
 use experimental qw[ class ];
 
+use importer 'Time::HiRes' => qw[ sleep ];
+
 use VM::Opcodes;
 
 class VM::Core {
@@ -76,7 +78,7 @@ class VM::Core {
                 print "\e[2J\e[H\n";
                 say join "\n" => $debugger->draw;
                 if (my $sleep = $ENV{CLOCK}) {
-                    Time::HiRes::sleep($sleep);
+                    sleep($sleep);
                 } else {
                     my $x = <>;
                 }

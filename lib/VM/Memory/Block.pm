@@ -3,7 +3,7 @@
 use v5.40;
 use experimental qw[ class ];
 
-use List::Util;
+use importer 'List::Util' => qw[ first ];
 
 use VM::Errors;
 
@@ -33,7 +33,7 @@ class VM::Memory::Block {
 
         if (($next_addr + $allocated) > $capacity) {
             # find one with the right size ...
-            my $available = List::Util::first { $_->size == $allocated } @freed;
+            my $available = first { $_->size == $allocated } @freed;
             # otherwise we are out of memory
             throw VM::Errors->OUT_OF_MEMORY if not defined $available;
             # but if we did, just use that base address
@@ -58,7 +58,7 @@ class VM::Memory::Block {
         return $pointer;
     }
 
-    method is_freed ($p) { List::Util::first { refaddr $p == refaddr $_ } @freed }
+    method is_freed ($p) { first { refaddr $p == refaddr $_ } @freed }
 
     method free ($pointer) {
         throw VM::Errors->POINTER_ALREADY_FREED if $self->is_freed( $pointer );

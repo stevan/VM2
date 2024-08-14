@@ -4,7 +4,7 @@ use v5.40;
 use experimental qw[ class builtin ];
 use builtin      qw[ export_lexically ];
 
-use Carp ();
+use importer 'Carp' => qw[ confess ];
 
 use VM::Internal::Tools;
 
@@ -45,5 +45,5 @@ class VM::Errors {
         );
     }
 
-    sub throw ($e) { Carp::confess("$e") }
+    sub throw ($e) { confess("$e") }
 }
