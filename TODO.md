@@ -3,17 +3,28 @@
 <!---------------------------------------------------------------------------->
 
 
+## Serial I/O
+
+- currently we have $sod and $sid as scalars
+    - these should arrays, each it's own channel
+        - $sid[0] == STDIN
+        - $sod[0] == STDOUT
+    - then you can add more channels if you want
+    - this can be wired up by the VM
+        - but handled in the Core
+
+## Interrupts
+
+- Interrupts + multiple I/O channels can be used in a multi-core
+  scenario to allow processors to communicate with one another
+  in an async way
+
+## Tests to Write
 
 - ParseInt test might be interesting
 
 
-
-
-
-
-
-
-
+<!---------------------------------------------------------------------------->
 
 
 ## Executable format

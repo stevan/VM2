@@ -19,11 +19,11 @@ class VM {
     field $debugger  :reader;
 
     # CPU and RAM
-    field $core      :reader;
-    field $memory    :reader;
-    # serial input/ouput devices
-    field $sod :reader;
-    field $sid :reader;
+    field $core   :reader;
+    field $memory :reader;
+    # serial input/ouput device
+    field $sod    :reader;
+    field $sid    :reader;
 
     ADJUST {
         $sod = VM::Channel->new;
