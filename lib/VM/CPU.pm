@@ -3,8 +3,7 @@
 use v5.40;
 use experimental qw[ class ];
 
-use importer 'Time::HiRes' => qw[ sleep ];
-
+use VM::Errors;
 use VM::Opcodes;
 use VM::Interrupts;
 
@@ -25,17 +24,12 @@ class VM::CPU {
     field $fp :reader =  0; # frame pointer (points to the top of the current stack frame)
     field $sp :reader = -1; # stack pointer (points to the current head of the stack)
 
-    field $running :reader = false;
-    field $halted  :reader = false;
+    field $halted :reader = false;
 
-    field $irq   = undef; # interrupt request register, used to signal an interrupt with VM::Interrupts type
-    field $error = undef;
+    field $irq = undef; # interrupt request register, used to signal an interrupt with VM::Interrupts type
 
     field @microcode;
     field @isr_table;
-
-    # optionally attach a debugger ...
-    field $debugger :param :reader = undef;
 
     ADJUST {
         @microcode = @VM::Opcodes::MICROCODE;
@@ -51,14 +45,11 @@ class VM::CPU {
         $fp      =  0;
         $sp      = -1;
         $irq     = undef;
-        $error   = undef;
         $halted  = false;
-        $running = false;
         $self;
     }
 
-    method irq   :lvalue { $irq   }
-    method error :lvalue { $error }
+    method irq :lvalue { $irq }
 
     method push ($v) { $stack[++$sp] = $v }
     method pop       { $stack[$sp--]      }
@@ -73,15 +64,13 @@ class VM::CPU {
     method move_sp ($addr) { $sp = $addr }
 
     method halt {
-        $running = false;
-        $halted  = true;
+        $halted = true;
     }
 
     method execute {
-        $error   = undef;
-        $running = true;
+        return if $halted;
 
-        while ($running && $pc < scalar @code) {
+        if ($pc < scalar @code) {
             $ci = $pc;
             my $opcode = $self->next_op;
             $microcode[$opcode]->($self);
@@ -92,6 +81,9 @@ class VM::CPU {
                 $irq = undef;
                 $isr->($self);
             }
+        } else {
+            die VM::Errors->UNEXPECTED_END_OF_CODE
+                if not $halted;
         }
     }
 }

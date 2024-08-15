@@ -4,6 +4,7 @@ use v5.40;
 use experimental qw[ class ];
 
 use importer 'List::Util'  => qw[ max sum ];
+use importer 'Time::HiRes' => qw[ sleep ];
 
 use VM::Debugger::Stack;
 use VM::Debugger::Memory;
@@ -16,15 +17,23 @@ class VM::Debugger {
     field $stack;
     field $heap;
 
-    method init {
+    ADJUST {
         $code  //= VM::Debugger::Code   ->new( vm => $vm );
         $stack //= VM::Debugger::Stack  ->new( vm => $vm );
         $heap  //= VM::Debugger::Memory ->new( block => $vm->heap );
+
+        $vm->clock->on_tick(sub {
+            print "\e[2J\e[H\n";
+            say join "\n" => $self->draw;
+            if (my $sleep = $ENV{CLOCK}) {
+                sleep($sleep);
+            } else {
+                my $x = <>;
+            }
+        });
     }
 
     method draw {
-        $self->init;
-
         my @code  = $code->draw;
         my @stack = $stack->draw;
         my @heap  = $heap->draw;

@@ -14,6 +14,8 @@ my $vm = VM->new;
 
 $vm->sid->put(c($_)) foreach split '' => '[1]';
 
+my $debugger = VM::Debugger->new( vm => $vm ) if $ENV{'DEBUG'};
+
 =pod
 
 TODO:

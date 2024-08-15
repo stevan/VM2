@@ -2,7 +2,6 @@
 # VM
 <!---------------------------------------------------------------------------->
 
-
 ## Serial I/O
 
 - currently we have $sod and $sid as scalars
@@ -15,6 +14,8 @@
 
 ## Interrupts
 
+- how do you handle interrupts from two different channels at the same time??
+
 - Interrupts + multiple I/O channels can be used in a multi-core
   scenario to allow processors to communicate with one another
   in an async way
@@ -22,7 +23,6 @@
 ## Tests to Write
 
 - ParseInt test might be interesting
-
 
 <!---------------------------------------------------------------------------->
 
