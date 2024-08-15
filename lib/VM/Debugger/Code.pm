@@ -26,7 +26,7 @@ class VM::Debugger::Code {
 
     method draw {
         my $asm = $vm->assembler;
-        my $cpu = $vm->core;
+        my $cpu = $vm->cpu;
         my $ci  = $cpu->ci;
 
         my @code      = $asm->code->@*;

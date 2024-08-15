@@ -8,7 +8,7 @@ use importer 'Time::HiRes' => qw[ sleep ];
 use VM::Opcodes;
 use VM::Interrupts;
 
-class VM::Core {
+class VM::CPU {
     # RAM
     field $heap :param :reader;
     # serial input/ouput devices

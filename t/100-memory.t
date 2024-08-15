@@ -10,7 +10,7 @@ use VM::Debugger::Memory;
 
 my $vm = VM->new( heap_size => 10 );
 
-my $block = $vm->core->heap;
+my $block = $vm->cpu->heap;
 
 my $bdebug = VM::Debugger::Memory->new( block => $block );
 

@@ -3,7 +3,7 @@
 use v5.40;
 use experimental qw[ class ];
 
-use VM::Core;
+use VM::CPU;
 use VM::Memory;
 use VM::Channel;
 use VM::Interrupts;
@@ -19,7 +19,7 @@ class VM {
     field $debugger  :reader;
 
     # CPU and RAM
-    field $core   :reader;
+    field $cpu   :reader;
     field $memory :reader;
     # serial input/ouput device
     field $sod    :reader;
@@ -32,7 +32,7 @@ class VM {
         $debugger  = VM::Debugger->new( vm => $self ) if DEBUG;
         $assembler = VM::Assembler->new;
         $memory    = VM::Memory->new;
-        $core      = VM::Core->new(
+        $cpu      = VM::CPU->new(
             heap => $memory->allocate_block( $heap_size ),
             sod  => $sod,
             sid  => $sid,
@@ -40,21 +40,21 @@ class VM {
         );
     }
 
-    method heap { $core->heap }
+    method heap { $cpu->heap }
 
     method assemble (@source) {
         $assembler->assemble(\@source);
 
-        $core->load_code(
+        $cpu->load_code(
             $assembler->label_to_addr->{'main'},
             $assembler->code
         );
     }
 
     method execute {
-        $core->irq = VM::Interrupts->DEBUG if DEBUG;
+        $cpu->irq = VM::Interrupts->DEBUG if DEBUG;
         try {
-            $core->execute;
+            $cpu->execute;
         } catch ($e) {
             chomp $e;
             die "Unexpected Runtime Exception: $e";

@@ -35,7 +35,7 @@ class VM::Debugger::Stack {
     method set_height ($h) { $height = $h }
 
     method draw {
-        my $cpu   = $vm->core;
+        my $cpu   = $vm->cpu;
         my $fp    = $cpu->fp;
         my $sp    = $cpu->sp;
         my @stack = $cpu->stack;
