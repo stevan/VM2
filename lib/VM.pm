@@ -12,6 +12,8 @@ use VM::Assembler;
 class VM {
     use constant DEBUG => $ENV{DEBUG} // 0;
 
+    use Term::ReadKey;
+
     field $heap_size :param :reader = 100;
 
     field $assembler :reader;
@@ -46,10 +48,28 @@ class VM {
     }
 
     method execute ($debugger=undef) {
-        try {
-            $core->execute( DEBUG ? $debugger : () );
-        } catch ($e) {
-            warn $e;
+        while (true) {
+            try {
+                $core->execute( DEBUG ? $debugger : () );
+            } catch ($e) {
+                warn $e;
+            }
+
+            last if $core->halted;
+
+            if (!$core->running) {
+                warn "Waiting???";
+                my $fh = *STDIN;
+                ReadMode cbreak  => $fh;
+                my $key = ReadKey 0, $fh;
+                #warn "Got Key($key)";
+                ReadMode restore => $fh;
+                #warn "Restored!!!";
+                $input_channel->put(VM::Value::CHAR->new( value => $key ));
+                warn "Added c($key) to the channel ...";
+                $core->interrupt;
+                #warn "Interrupted!!!";
+            }
         }
     }
 }

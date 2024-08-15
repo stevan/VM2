@@ -23,6 +23,11 @@ class VM::Core {
     field $sp :reader = -1; # stack pointer (points to the current head of the stack)
 
     field $running :reader = false;
+    field $halted  :reader = false;
+
+    field $ir_flag = false; # interupt flag, this signals something to happen
+    field $ir_addr = undef; # this is the address to jump to when it does
+
     field $error = undef;
 
     field @microcode;
@@ -43,6 +48,10 @@ class VM::Core {
         $self;
     }
 
+    method interrupt { $ir_flag = true }
+
+    method interrupt_handler :lvalue { $ir_addr }
+
     method error :lvalue { $error }
 
     method push ($v) { $stack[++$sp] = $v }
@@ -59,8 +68,13 @@ class VM::Core {
 
     method halt {
         $running = false;
+        $halted  = true;
         $sp      = -1;
         $fp      = 0;
+    }
+
+    method yield {
+        $running = false;
     }
 
     method execute ($debugger=undef) {
@@ -68,6 +82,13 @@ class VM::Core {
         $running = true;
 
         while ($running && $pc < scalar @code) {
+            if ($ir_flag) {
+                #warn "GOT IR FLAG, with ADDR($ir_addr)";
+                $pc = $ir_addr->address;
+                $ir_flag = false;
+                $ir_addr = undef;
+            }
+
             $ci = $pc;
             my $opcode = $self->next_op;
             $microcode[$opcode]->($self);

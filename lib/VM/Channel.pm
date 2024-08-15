@@ -3,12 +3,18 @@
 use v5.40;
 use experimental qw[ class ];
 
+use importer 'List::Util' => qw[ first ];
+
 use VM::Value::NULL;
 
 class VM::Channel {
     field @buffer :reader;
 
     method put ($v) { push @buffer => $v }
+
+    method has ($type) {
+        !!( first { $_->type->to_int == $type->to_int } @buffer )
+    }
 
     method get ($type) {
         state $NULL = VM::Value::NULL->new;

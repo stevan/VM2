@@ -54,6 +54,10 @@ class VM::Opcodes {
             JUMP_IF_FALSE
             JUMP_IF_TRUE
 
+            YIELD
+            YIELD_IF_FALSE
+            YIELD_IF_TRUE
+
             LOAD
             STORE
 
@@ -254,6 +258,30 @@ class VM::Opcodes {
             my $bool = $cpu->pop;
             if ( $bool isa VM::Value::TRUE ) {
                 $cpu->jump_to( $addr->address );
+            }
+        });
+
+        $MICROCODE[YIELD] = set_subname( YIELD => sub ($cpu) {
+            my $addr = $cpu->next_op;
+            $cpu->interrupt_handler = $addr;
+            $cpu->yield;
+        });
+
+        $MICROCODE[YIELD_IF_TRUE] = set_subname( YIELD_IF_TRUE => sub ($cpu) {
+            my $addr = $cpu->next_op;
+            my $bool = $cpu->pop;
+            if ( $bool isa VM::Value::TRUE ) {
+                $cpu->interrupt_handler = $addr;
+                $cpu->yield;
+            }
+        });
+
+        $MICROCODE[YIELD_IF_FALSE] = set_subname( YIELD_IF_FALSE => sub ($cpu) {
+            my $addr = $cpu->next_op;
+            my $bool = $cpu->pop;
+            if ( $bool isa VM::Value::FALSE ) {
+                $cpu->interrupt_handler = $addr;
+                $cpu->yield;
             }
         });
 

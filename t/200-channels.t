@@ -27,6 +27,10 @@ $ch->put( i(5) );
 
 say join ', ' => $ch->buffer;
 
+say $ch->has(VM::Types->INT) ? 'Has INT' : 'No INT';
+say $ch->has(VM::Types->CHAR) ? 'Has CHAR' : 'No CHAR';
+say $ch->has(VM::Types->FLOAT) ? 'Has FLOAT' : 'No FLOAT';
+
 for (
     my $int = $ch->get(VM::Types->INT);
     !($int isa VM::Value::NULL);
@@ -35,6 +39,10 @@ for (
     say $int;
     say join ', ' => $ch->buffer;
 }
+
+say $ch->has(VM::Types->INT) ? 'Has INT' : 'No INT';
+say $ch->has(VM::Types->CHAR) ? 'Has CHAR' : 'No CHAR';
+say $ch->has(VM::Types->FLOAT) ? 'Has FLOAT' : 'No FLOAT';
 
 for (
     my $char = $ch->get(VM::Types->CHAR);
@@ -45,6 +53,10 @@ for (
     say join ', ' => $ch->buffer;
 }
 
+say $ch->has(VM::Types->INT) ? 'Has INT' : 'No INT';
+say $ch->has(VM::Types->CHAR) ? 'Has CHAR' : 'No CHAR';
+say $ch->has(VM::Types->FLOAT) ? 'Has FLOAT' : 'No FLOAT';
+
 for (
     my $float = $ch->get(VM::Types->FLOAT);
     !($float isa VM::Value::NULL);
@@ -53,6 +65,10 @@ for (
     say $float;
     say join ', ' => $ch->buffer;
 }
+
+say $ch->has(VM::Types->INT) ? 'Has INT' : 'No INT';
+say $ch->has(VM::Types->CHAR) ? 'Has CHAR' : 'No CHAR';
+say $ch->has(VM::Types->FLOAT) ? 'Has FLOAT' : 'No FLOAT';
 
 
 
