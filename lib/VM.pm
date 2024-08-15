@@ -6,33 +6,37 @@ use experimental qw[ class ];
 use VM::Core;
 use VM::Memory;
 use VM::Channel;
+use VM::Interrupts;
 
 use VM::Assembler;
 
 class VM {
     use constant DEBUG => $ENV{DEBUG} // 0;
 
-    use Term::ReadKey;
-
     field $heap_size :param :reader = 100;
 
     field $assembler :reader;
+    field $debugger  :reader;
+
+    # CPU and RAM
     field $core      :reader;
     field $memory    :reader;
-
-    field $output_channel :reader;
-    field $input_channel  :reader;
+    # serial input/ouput devices
+    field $sod :reader;
+    field $sid :reader;
 
     ADJUST {
-        $output_channel = VM::Channel->new;
-        $input_channel  = VM::Channel->new;
+        $sod = VM::Channel->new;
+        $sid = VM::Channel->new;
 
+        $debugger  = VM::Debugger->new( vm => $self ) if DEBUG;
         $assembler = VM::Assembler->new;
         $memory    = VM::Memory->new;
         $core      = VM::Core->new(
-            heap           => $memory->allocate_block( $heap_size ),
-            output_channel => $output_channel,
-            input_channel  => $input_channel
+            heap => $memory->allocate_block( $heap_size ),
+            sod  => $sod,
+            sid  => $sid,
+            (DEBUG ? (debugger => $debugger) : ()),
         );
     }
 
@@ -47,29 +51,13 @@ class VM {
         );
     }
 
-    method execute ($debugger=undef) {
-        while (true) {
-            try {
-                $core->execute( DEBUG ? $debugger : () );
-            } catch ($e) {
-                warn $e;
-            }
-
-            last if $core->halted;
-
-            if (!$core->running) {
-                warn "Waiting???";
-                my $fh = *STDIN;
-                ReadMode cbreak  => $fh;
-                my $key = ReadKey 0, $fh;
-                #warn "Got Key($key)";
-                ReadMode restore => $fh;
-                #warn "Restored!!!";
-                $input_channel->put(VM::Value::CHAR->new( value => $key ));
-                warn "Added c($key) to the channel ...";
-                $core->interrupt;
-                #warn "Interrupted!!!";
-            }
+    method execute {
+        $core->irq = VM::Interrupts->DEBUG if DEBUG;
+        try {
+            $core->execute;
+        } catch ($e) {
+            chomp $e;
+            die "Unexpected Runtime Exception: $e";
         }
     }
 }

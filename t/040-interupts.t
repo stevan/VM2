@@ -16,19 +16,12 @@ my $vm = VM->new;
 $vm->assemble(
     label('.main'),
 
-        GET_CHAR,
-        DUP,
-        IS_NULL,
-        YIELD_IF_TRUE, label('#main'),
-        PUT,
-        JUMP, label('#main'),
+
 
         HALT,
 );
 
-$vm->execute(
-    VM::Debugger->new( vm => $vm )
-);
+$vm->execute;
 
 
 

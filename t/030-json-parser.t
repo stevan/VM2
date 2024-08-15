@@ -12,9 +12,14 @@ use VM::Debugger;
 
 my $vm = VM->new;
 
-$vm->input_channel->put(c($_)) foreach split '' => '[1]';
+$vm->sid->put(c($_)) foreach split '' => '[1]';
 
 =pod
+
+TODO:
+This needs work, it is not anywhere near
+finished or even a sensible start.
+
 
 =cut
 
@@ -75,9 +80,7 @@ $vm->assemble(
         HALT,
 );
 
-$vm->execute(
-    VM::Debugger->new( vm => $vm )
-);
+$vm->execute;
 
 
 

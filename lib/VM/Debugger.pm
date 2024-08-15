@@ -16,13 +16,15 @@ class VM::Debugger {
     field $stack;
     field $heap;
 
-    ADJUST {
-        $code  = VM::Debugger::Code   ->new( vm => $vm );
-        $stack = VM::Debugger::Stack  ->new( vm => $vm );
-        $heap  = VM::Debugger::Memory ->new( block => $vm->heap );
+    method init {
+        $code  //= VM::Debugger::Code   ->new( vm => $vm );
+        $stack //= VM::Debugger::Stack  ->new( vm => $vm );
+        $heap  //= VM::Debugger::Memory ->new( block => $vm->heap );
     }
 
     method draw {
+        $self->init;
+
         my @code  = $code->draw;
         my @stack = $stack->draw;
         my @heap  = $heap->draw;
@@ -65,14 +67,14 @@ class VM::Debugger {
         my $width = sum( $code_width, $stack_width, $heap_width ) + 10;
 
         push @out => (
-            ('╭── Input '  .('─' x ($width  - 10)).'─╮'),
-            ('│ '.(sprintf "%-${width}s" => join '' => map $_->value, $vm->input_channel->buffer).' │'),
+            ('╭── Input '  .('─' x ($width  - 8)).'─╮'),
+            ('│ '.(sprintf "%-${width}s" => join '' => map $_->value, $vm->sid->buffer).' │'),
             ('╰─'.           ('─' x $width)       .'─╯'),
         );
 
         push @out => (
             ('╭── Output '  .('─' x ($width  - 9)).'─╮'),
-            ('│ '.(sprintf "%-${width}s" => join '' => map $_->value, $vm->output_channel->buffer).' │'),
+            ('│ '.(sprintf "%-${width}s" => join '' => map $_->value, $vm->sod->buffer).' │'),
             ('╰─'.           ('─' x $width)       .'─╯'),
         );
 

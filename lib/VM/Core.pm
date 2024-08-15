@@ -6,11 +6,14 @@ use experimental qw[ class ];
 use importer 'Time::HiRes' => qw[ sleep ];
 
 use VM::Opcodes;
+use VM::Interrupts;
 
 class VM::Core {
-    field $heap           :param :reader;
-    field $output_channel :param :reader;
-    field $input_channel  :param :reader;
+    # RAM
+    field $heap :param :reader;
+    # serial input/ouput devices
+    field $sod  :param :reader;
+    field $sid  :param :reader;
 
     field @code  :reader;
     field @stack :reader;
@@ -25,33 +28,36 @@ class VM::Core {
     field $running :reader = false;
     field $halted  :reader = false;
 
-    field $ir_flag = false; # interupt flag, this signals something to happen
-    field $ir_addr = undef; # this is the address to jump to when it does
-
+    field $irq   = undef; # interrupt request register, used to signal an interrupt with VM::Interrupts type
     field $error = undef;
 
     field @microcode;
+    field @isr_table;
+
+    # optionally attach a debugger ...
+    field $debugger :param :reader = undef;
 
     ADJUST {
         @microcode = @VM::Opcodes::MICROCODE;
+        @isr_table = @VM::Interrupts::ISRS;
     }
 
     method load_code ($entry, $code) {
-        @code  = @$code;
-        @stack = ();
-        $ic    =  0;
-        $pc    =  $entry;
-        $ci    =  0;
-        $fp    =  0;
-        $sp    = -1;
-        $error = undef;
+        @code    = @$code;
+        @stack   = ();
+        $ic      =  0;
+        $pc      =  $entry;
+        $ci      =  0;
+        $fp      =  0;
+        $sp      = -1;
+        $irq     = undef;
+        $error   = undef;
+        $halted  = false;
+        $running = false;
         $self;
     }
 
-    method interrupt { $ir_flag = true }
-
-    method interrupt_handler :lvalue { $ir_addr }
-
+    method irq   :lvalue { $irq   }
     method error :lvalue { $error }
 
     method push ($v) { $stack[++$sp] = $v }
@@ -69,39 +75,22 @@ class VM::Core {
     method halt {
         $running = false;
         $halted  = true;
-        $sp      = -1;
-        $fp      = 0;
     }
 
-    method yield {
-        $running = false;
-    }
-
-    method execute ($debugger=undef) {
+    method execute {
         $error   = undef;
         $running = true;
 
         while ($running && $pc < scalar @code) {
-            if ($ir_flag) {
-                #warn "GOT IR FLAG, with ADDR($ir_addr)";
-                $pc = $ir_addr->address;
-                $ir_flag = false;
-                $ir_addr = undef;
-            }
-
             $ci = $pc;
             my $opcode = $self->next_op;
             $microcode[$opcode]->($self);
             $ic++;
 
-            if ($debugger) {
-                print "\e[2J\e[H\n";
-                say join "\n" => $debugger->draw;
-                if (my $sleep = $ENV{CLOCK}) {
-                    sleep($sleep);
-                } else {
-                    my $x = <>;
-                }
+            if (defined $irq) {
+                my $isr = $isr_table[$irq];
+                $irq = undef;
+                $isr->($self);
             }
         }
     }

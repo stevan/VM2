@@ -2,6 +2,20 @@
 # VM
 <!---------------------------------------------------------------------------->
 
+
+
+- ParseInt test might be interesting
+
+
+
+
+
+
+
+
+
+
+
 ## Executable format
 
 - the assembler should produce this format

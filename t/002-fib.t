@@ -58,8 +58,6 @@ $vm->assemble(
             HALT,
 );
 
-$vm->execute(
-    VM::Debugger->new( vm => $vm )
-);
+$vm->execute;
 
 
