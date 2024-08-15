@@ -9,7 +9,6 @@ use VM::Debugger;
 
 my $vm = VM->new;
 
-my $debugger = VM::Debugger->new( vm => $vm ) if $ENV{'DEBUG'};
 
 =pod
 

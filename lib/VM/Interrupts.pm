@@ -13,11 +13,14 @@ class VM::Interrupts {
 
     use constant TIMER => VM::Interrupts::Interrupt->new( int => 1, label => 'TIMER' );
     use constant IO    => VM::Interrupts::Interrupt->new( int => 2, label => 'IO'    );
+    use constant DEBUG => VM::Interrupts::Interrupt->new( int => 3, label => 'DEBUG' );
 
+    our $DEBUGGER;
     our @ISRS;
     BEGIN {
         $ISRS[TIMER] = set_subname( 'TIMER_ISR' => sub ($cpu) {});
         $ISRS[IO]    = set_subname( 'IO_ISR'    => sub ($cpu) {});
+        $ISRS[DEBUG] = set_subname( 'DEBUG_ISR' => sub ($cpu) { $DEBUGGER->call });
     }
 }
 

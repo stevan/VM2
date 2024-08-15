@@ -21,16 +21,16 @@ class VM::Debugger {
         $code  //= VM::Debugger::Code   ->new( vm => $vm );
         $stack //= VM::Debugger::Stack  ->new( vm => $vm );
         $heap  //= VM::Debugger::Memory ->new( block => $vm->heap );
+    }
 
-        $vm->clock->on_tick(sub {
-            print "\e[2J\e[H\n";
-            say join "\n" => $self->draw;
-            if (my $sleep = $ENV{CLOCK}) {
-                sleep($sleep);
-            } else {
-                my $x = <>;
-            }
-        });
+    method call {
+        print "\e[2J\e[H\n";
+        say join "\n" => $self->draw;
+        if (my $sleep = $ENV{CLOCK}) {
+            sleep($sleep);
+        } else {
+            my $x = <>;
+        }
     }
 
     method draw {
