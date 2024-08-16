@@ -27,6 +27,8 @@ class VM::Opcodes {
     BEGIN {
         @OPCODE_NAMES = qw[
             BREAKPOINT
+            HALT
+            EXIT
 
             CONST_NULL
 
@@ -84,8 +86,6 @@ class VM::Opcodes {
             DUP
             POP
             SWAP
-
-            HALT
         ];
         foreach my $i ( 0 .. $#OPCODE_NAMES ) {
             no strict 'refs';
@@ -113,6 +113,7 @@ class VM::Opcodes {
         ## ----------------------------------------------------------
 
         $MICROCODE[HALT] = set_subname( HALT => sub ($cpu) { $cpu->halt } );
+        $MICROCODE[EXIT] = set_subname( HALT => sub ($cpu) { $cpu->exit });
 
         ## ----------------------------------------------------------
         ## Constants

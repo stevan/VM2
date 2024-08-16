@@ -45,7 +45,7 @@ $vm->assemble(
 
         LOAD, 0,
         PUT,
-        HALT,
+        EXIT,
 );
 
 $vm->execute;

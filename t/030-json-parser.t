@@ -78,7 +78,7 @@ $vm->assemble(
 
     label('.main'),
         CALL, label('#parse'), 0,
-        HALT,
+        EXIT,
 );
 
 $vm->execute;

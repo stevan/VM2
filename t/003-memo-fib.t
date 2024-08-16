@@ -81,7 +81,7 @@ $vm->assemble(
         CONST_INT, i(10),
         CALL, label('#fib'), 1,
         PUT,
-        HALT
+        EXIT,
 );
 
 $vm->execute;

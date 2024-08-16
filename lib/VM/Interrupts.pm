@@ -18,25 +18,37 @@ class VM::Interrupts {
 
     field $vm :param :reader;
 
-    our @ISRS;
+    field $is_debugging = false;
+
+    method is_debugging :lvalue { $is_debugging }
+
     method interrupt_table {
-        my @isrs = @ISRS;
-
-        my $_vm = $vm;
-
+        my @isrs;
         $isrs[DEBUG] = set_subname( 'DEBUG_ISR' => sub ($cpu) {
-            state $debugger = VM::Debugger->new( vm => $_vm );
+            state $debugger = VM::Debugger->new( vm => $self->vm );
             $debugger->call;
+
+            if ($cpu->irq && $cpu->irq->to_int == VM::Interrupts->DEBUG->to_int) {
+                $self->is_debugging = true;
+            } else {
+                $self->is_debugging = false;
+            }
+        });
+
+        $isrs[IO] = set_subname( 'IO_ISR'    => sub ($cpu) {
+            if ($is_debugging) {
+                $cpu->irq = VM::Interrupts->DEBUG;
+            }
+        });
+
+        $isrs[TIMER] = set_subname( 'TIMER_ISR' => sub ($cpu) {
+            if ($is_debugging) {
+                $cpu->irq = VM::Interrupts->DEBUG;
+            }
         });
 
         return \@isrs;
     }
 
-    # ...
-
-    BEGIN {
-        $ISRS[TIMER] = set_subname( 'TIMER_ISR' => sub ($cpu) {});
-        $ISRS[IO]    = set_subname( 'IO_ISR'    => sub ($cpu) {});
-    }
 }
 

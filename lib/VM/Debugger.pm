@@ -106,13 +106,13 @@ class VM::Debugger {
 
         push @out => (
             ('╭── Input '  .('─' x ($width  - 8)).'─╮'),
-            ('│ '.(sprintf "%-${width}s" => join '' => map $_->value, $vm->sid->buffer).' │'),
+            ('│ '.(sprintf "%-${width}s" => join '' => map $_->to_string, $vm->sid->buffer).' │'),
             ('╰─'.           ('─' x $width)       .'─╯'),
         );
 
         push @out => (
             ('╭── Output '  .('─' x ($width  - 9)).'─╮'),
-            ('│ '.(sprintf "%-${width}s" => join '' => map $_->value, $vm->sod->buffer).' │'),
+            ('│ '.(sprintf "%-${width}s" => join '' => map $_->to_string, $vm->sod->buffer).' │'),
             ('╰─'.           ('─' x $width)       .'─╯'),
         );
 

@@ -58,7 +58,7 @@ $vm->assemble(
 
         CALL, label('#traverse'), 1,
 
-        HALT,
+        EXIT,
 );
 
 $vm->execute;

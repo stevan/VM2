@@ -16,16 +16,30 @@ my $vm = VM->new;
 
 $vm->assemble(
     label('.main'),
+        BREAKPOINT,
+        CONST_CHAR, c('?'), PUT,
+        CONST_CHAR, c(' '), PUT,
 
-
-
+    label('.main.getc'),
+        GET_CHAR,
+        DUP,
+        IS_NULL,
+        JUMP_IF_FALSE, label('#main.print'),
         HALT,
+        JUMP, label('#main.getc'),
+
+    label('.main.print'),
+        BREAKPOINT,
+        CONST_CHAR, c("\n"), PUT,
+        CONST_CHAR, c('>'), PUT,
+        CONST_CHAR, c(' '), PUT,
+        PUT,
+
+        CONST_CHAR, c("\n"), PUT,
+        EXIT,
 );
 
 $vm->execute;
-
-
-
 
 
 

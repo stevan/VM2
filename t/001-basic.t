@@ -60,7 +60,7 @@ $vm->assemble(
     label('.main.exit'),
         LOAD, 0,
         FREE_MEM,
-        HALT
+        EXIT,
 );
 
 $vm->execute;

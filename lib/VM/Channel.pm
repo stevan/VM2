@@ -10,6 +10,10 @@ use VM::Value::NULL;
 class VM::Channel {
     field @buffer :reader;
 
+    method is_empty { scalar @buffer == 0 }
+
+    method flush { my @b = @buffer; @buffer = (); @b }
+
     method put ($v) { push @buffer => $v }
 
     method has ($type) {

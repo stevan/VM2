@@ -17,7 +17,7 @@ class VM::Errors {
             ILLEGAL_DIVISION_BY_ZERO
             ILLEGAL_MOD_BY_ZERO
 
-            UNEXPECTED_END_OF_CODE
+            CODE_IS_ALREADY_COMPLETED
 
             INVALID_POINTER
 

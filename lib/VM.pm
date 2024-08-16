@@ -3,6 +3,8 @@
 use v5.40;
 use experimental qw[ class ];
 
+use importer 'Term::ReadKey' => qw[ ReadKey ReadMode ];
+
 use VM::CPU;
 use VM::Memory;
 use VM::Clock;
@@ -26,6 +28,10 @@ class VM {
     field $sod    :reader;
     field $sid    :reader;
 
+    # internals ...
+    field $opcodes    :reader;
+    field $interrupts :reader;
+
     ADJUST {
         $sod    = VM::Channel->new;
         $sid    = VM::Channel->new;
@@ -37,8 +43,8 @@ class VM {
             sid  => $sid,
         );
 
-        my $opcodes    = VM::Opcodes->new( vm => $self );
-        my $interrupts = VM::Interrupts->new( vm => $self );
+        $opcodes    = VM::Opcodes->new( vm => $self );
+        $interrupts = VM::Interrupts->new( vm => $self );
 
         $cpu->load_microcode( $opcodes->microcode );
         $cpu->load_interrupt_table( $interrupts->interrupt_table );
@@ -60,8 +66,27 @@ class VM {
 
     method execute {
         try {
-            until ($cpu->halted) {
+            until ($cpu->completed) {
                 $clock->tick( $cpu );
+
+                if (!$sod->is_empty && !$interrupts->is_debugging) {
+                    print join '' => map $_->value, $sod->flush;
+                }
+
+                if ($cpu->halted) {
+                    warn "CPU halted ...";
+                    ReadMode cbreak  => *STDIN;
+                    my $x = ReadKey 0, *STDIN;
+                    ReadMode restore => *STDIN;
+
+                    $sid->put( VM::Value::CHAR->new( value => $x ) );
+                    $cpu->irq = VM::Interrupts->IO;
+                    $cpu->resume;
+                }
+            }
+
+            if (!$sod->is_empty && !$interrupts->is_debugging) {
+                print join '' => map $_->value, $sod->flush;
             }
         } catch ($e) {
             chomp $e;

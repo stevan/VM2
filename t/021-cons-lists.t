@@ -139,7 +139,7 @@ $vm->assemble(
         CALL, label('#reverse'), 1,
         CALL, label('#print'), 1,
 
-        HALT,
+        EXIT,
 );
 
 $vm->execute;

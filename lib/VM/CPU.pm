@@ -1,5 +1,4 @@
 #!perl
-#!perl
 
 use v5.40;
 use experimental qw[ class ];
@@ -24,7 +23,8 @@ class VM::CPU {
     field $fp :reader =  0; # frame pointer (points to the top of the current stack frame)
     field $sp :reader = -1; # stack pointer (points to the current head of the stack)
 
-    field $halted :reader = false;
+    field $completed :reader = false;
+    field $halted    :reader = false;
 
     field $irq = undef; # interrupt request register, used to signal an interrupt with VM::Interrupts type
 
@@ -35,15 +35,16 @@ class VM::CPU {
     method load_interrupt_table ($isr_table) { @isr_table = @$isr_table }
 
     method load_code ($entry, $code) {
-        @code    = @$code;
-        @stack   = ();
-        $ic      =  0;
-        $pc      =  $entry;
-        $ci      =  0;
-        $fp      =  0;
-        $sp      = -1;
-        $irq     = undef;
-        $halted  = false;
+        @code      = @$code;
+        @stack     = ();
+        $ic        =  0;
+        $pc        =  $entry;
+        $ci        =  0;
+        $fp        =  0;
+        $sp        = -1;
+        $irq       = undef;
+        $completed = false;
+        $halted    = false;
         $self;
     }
 
@@ -62,14 +63,19 @@ class VM::CPU {
     method move_fp ($addr) { $fp = $addr }
     method move_sp ($addr) { $sp = $addr }
 
-    method halt {
-        $halted = true;
+    method halt   { $halted = true  }
+    method resume { $halted = false }
+    method exit {
+        $completed = true;
     }
 
     method execute {
-        return if $halted;
+        die VM::Errors->CODE_IS_ALREADY_COMPLETED
+            if $completed;
 
-        if ($pc < scalar @code) {
+        die "WTF" if $halted;
+
+        if (!$halted && $pc < scalar @code) {
             $ci = $pc;
             my $opcode = $self->next_op;
             $microcode[$opcode]->($self);
@@ -80,9 +86,10 @@ class VM::CPU {
                 $irq = undef;
                 $isr->($self);
             }
-        } else {
-            die VM::Errors->UNEXPECTED_END_OF_CODE
-                if not $halted;
         }
+
+        $completed = true if $pc == scalar @code;
+
+        return;
     }
 }
