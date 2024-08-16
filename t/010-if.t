@@ -49,7 +49,6 @@ $vm->assemble(
 
 $vm->execute;
 
-say join ', ' => map $_->value, $vm->sod->buffer;
 
 
 

@@ -3,9 +3,6 @@
 use v5.40;
 use experimental qw[ class builtin ];
 
-use Scalar::Util ();
-use Sub::Util    ();
-
 use VM;
 use VM::Assembler::Assembly;
 use VM::Debugger;
@@ -53,6 +50,7 @@ $vm->assemble(
             RETURN,
 
         label('.main'),
+            #BREAKPOINT,
             CONST_INT, i(10),
             CALL, label('#fib'), 1,
             PUT,
@@ -60,5 +58,4 @@ $vm->assemble(
 );
 
 $vm->execute;
-
 

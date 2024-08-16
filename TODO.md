@@ -64,5 +64,68 @@
             - leave the remainder in @freed
             - return the new sliced pointer
 
+<!---------------------------------------------------------------------------->
+# Clock timings
+<!---------------------------------------------------------------------------->
+
+A quick hack for a display .. which is really just a playback
+
+```perl
+
+
+my %used_colors;
+my @colors;
+my @timings;
+foreach my ($op, $timing) ($vm->clock->timings) {
+    #say sprintf "%15s : %f" => $op, $timing;
+    push @timings => $timing;
+    push @colors => $used_colors{ $op->to_string } //= [ map { int(rand(25)) * 10 } qw[ r g b ] ];
+
+    #warn $timing, " ... ", ($timing * 100000);
+}
+
+#die;
+
+my $wallclock = List::Util::sum(@timings);
+
+my $height = 20;
+my $stride = 120;
+my $start  = 0;
+my $end    = $start + $stride;
+#die $#timings;
+while (true) {
+
+    $end = $#timings if $end >= $#timings;
+
+    my @output = map { sprintf '%02d |' => $_ } reverse (0 .. $height);
+    foreach my $idx ( $start .. $end ) {
+        my $timing = $timings[$idx];
+        my $t = int($height * ($timing * 100_000));
+
+        my $m = sprintf "\e[48;2;%d;%d;%d;m \e[0m" => $colors[$idx]->@*;
+
+        foreach my $i (0 .. $height) {
+            $output[$i] .= ($i >= $t ? $m : ' ');
+        }
+    }
+    say "\e[2J\e[H\n",
+        (sprintf "wallclock: %s microseconds\n" => ($wallclock * 100_000)),
+        join "\n" => @output;
+    if (my $c = $ENV{CLOCK}) {
+        Time::HiRes::sleep($c);
+    } else {
+        my $x = <>;
+    }
+
+    last if $end == $#timings;
+
+    $start++;
+    $end++;
+}
+
+#say "\n";
+
+```
+
 
 

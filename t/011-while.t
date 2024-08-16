@@ -25,7 +25,7 @@ x;
 
 $vm->assemble(
     label('.main'),
-        BREAKPOINT,
+        #BREAKPOINT,
         CONST_INT, i(0),
 
     label('.main.while'),
@@ -38,7 +38,7 @@ $vm->assemble(
         CONST_INT, i(1),
         ADD_INT,
         STORE, 0,
-        BREAKPOINT,
+        #BREAKPOINT,
 
         JUMP, label('#main.while'),
     label('.main.while.break'),
@@ -49,10 +49,6 @@ $vm->assemble(
 );
 
 $vm->execute;
-
-
-
-
 
 
 
