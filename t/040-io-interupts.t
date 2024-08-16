@@ -9,8 +9,9 @@ use VM::Debugger;
 
 my $vm = VM->new;
 
-
 =pod
+
+    get a character and print it ...
 
 =cut
 
@@ -29,7 +30,6 @@ $vm->assemble(
         JUMP, label('#main.getc'),
 
     label('.main.print'),
-        BREAKPOINT,
         CONST_CHAR, c("\n"), PUT,
         CONST_CHAR, c('>'), PUT,
         CONST_CHAR, c(' '), PUT,

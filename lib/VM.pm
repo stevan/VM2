@@ -64,29 +64,32 @@ class VM {
         );
     }
 
+    method block_for_input {
+        ReadMode cbreak  => *STDIN;
+        my $char = ReadKey 0, *STDIN;
+        ReadMode restore => *STDIN;
+        $sid->put( VM::Value::CHAR->new( value => $char ) );
+        $cpu->irq = VM::Interrupts->IO;
+        return;
+    }
+
+    method flush_output {
+        return if $sod->is_empty;
+        return if $interrupts->is_debugging;
+        print STDOUT join '' => map $_->value, $sod->flush;
+    }
+
     method execute {
         try {
             until ($cpu->completed) {
                 $clock->tick( $cpu );
 
-                if (!$sod->is_empty && !$interrupts->is_debugging) {
-                    print join '' => map $_->value, $sod->flush;
-                }
-
                 if ($cpu->halted) {
-                    warn "CPU halted ...";
-                    ReadMode cbreak  => *STDIN;
-                    my $x = ReadKey 0, *STDIN;
-                    ReadMode restore => *STDIN;
-
-                    $sid->put( VM::Value::CHAR->new( value => $x ) );
-                    $cpu->irq = VM::Interrupts->IO;
+                    $self->block_for_input;
                     $cpu->resume;
                 }
-            }
-
-            if (!$sod->is_empty && !$interrupts->is_debugging) {
-                print join '' => map $_->value, $sod->flush;
+            } continue {
+                $self->flush_output;
             }
         } catch ($e) {
             chomp $e;
