@@ -17,23 +17,62 @@ my $vm = VM->new;
 
 $vm->assemble(
     label('.main'),
-        BREAKPOINT,
+        #BREAKPOINT,
+        CONST_INT, i(20),
+        ALLOC_MEM, 1,
+
+        CONST_INT, i(0), # count up
+        CONST_INT, i(0), # count down
+
         CONST_CHAR, c('?'), PUT,
         CONST_CHAR, c(' '), PUT,
 
     label('.main.getc'),
+        HALT,
+
         GET_CHAR,
         DUP,
-        IS_NULL,
-        JUMP_IF_FALSE, label('#main.print'),
-        HALT,
+        CONST_CHAR, c("\n"),
+        EQ_CHAR,
+        JUMP_IF_TRUE, label('#main.print'),
+
+        #BREAKPOINT,
+
+        DUP,
+        PUT,
+
+        LOAD, 1,
+        LOAD, 0,
+        STORE_MEM,
+
+        #BREAKPOINT,
+
+        LOAD, 1,
+        INC_INT,
+        STORE, 1,
+
         JUMP, label('#main.getc'),
 
     label('.main.print'),
-        CONST_CHAR, c("\n"), PUT,
+        PUT,
         CONST_CHAR, c('>'), PUT,
         CONST_CHAR, c(' '), PUT,
+
+    label('.main.print.loop'),
+        #BREAKPOINT,
+        LOAD, 2,
+        LOAD, 0,
+        LOAD_MEM,
         PUT,
+
+        LOAD, 2,
+        INC_INT,
+        DUP,
+        STORE, 2,
+
+        LOAD, 1,
+        EQ_INT,
+        JUMP_IF_FALSE, label('#main.print.loop'),
 
         CONST_CHAR, c("\n"), PUT,
         EXIT,

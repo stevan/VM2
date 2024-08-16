@@ -65,6 +65,7 @@ class VM {
     }
 
     method block_for_input {
+        print "PROMPT? " if $interrupts->is_debugging;
         ReadMode cbreak  => *STDIN;
         my $char = ReadKey 0, *STDIN;
         ReadMode restore => *STDIN;

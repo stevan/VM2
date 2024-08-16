@@ -38,6 +38,9 @@ class VM::Opcodes {
             CONST_INT
             CONST_CHAR
 
+            INC_INT
+            DEC_INT
+
             ADD_INT
             SUB_INT
             MUL_INT
@@ -149,6 +152,16 @@ class VM::Opcodes {
         ## ----------------------------------------------------------
         ## Math
         ## ----------------------------------------------------------
+
+        $MICROCODE[INC_INT] = set_subname( INC_INT => sub ($cpu) {
+            my $lhs = $cpu->pop;
+            $cpu->push( VM::Value::INT->new( value => $lhs->value + 1 ) );
+        });
+
+        $MICROCODE[DEC_INT] = set_subname( DEC_INT => sub ($cpu) {
+            my $lhs = $cpu->pop;
+            $cpu->push( VM::Value::INT->new( value => $lhs->value - 1 ) );
+        });
 
         $MICROCODE[ADD_INT] = set_subname( ADD_INT => sub ($cpu) {
             my $rhs = $cpu->pop;
