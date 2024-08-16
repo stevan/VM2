@@ -32,6 +32,7 @@ $vm->assemble(
         CONST_INT, i(0), # $y
 
     label('.main.loop'),
+        #BREAKPOINT,
         LOAD, 1, # $x
         LOAD, 2, # $y
         CALL, label('#adder'), 2,

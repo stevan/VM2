@@ -27,6 +27,7 @@ x;
 
 $vm->assemble(
     label('.main'),
+        BREAKPOINT,
         CONST_NULL,
 
         CONST_INT, i(10),
@@ -48,7 +49,7 @@ $vm->assemble(
 
 $vm->execute;
 
-
+say join ', ' => map $_->value, $vm->sod->buffer;
 
 
 

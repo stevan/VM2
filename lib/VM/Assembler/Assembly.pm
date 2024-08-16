@@ -27,7 +27,7 @@ package VM::Assembler::Assembly {
             '&label' => \&label,
         );
 
-        foreach my $opcode ( @VM::Opcodes::OPCODES ) {
+        foreach my $opcode ( VM::Opcodes->ALL_OPCODES->@* ) {
             my $code = VM::Opcodes->$opcode;
             $exports{ sprintf '&%s' => $opcode } = set_subname( $opcode, sub () { $code } );
         }

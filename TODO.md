@@ -2,22 +2,6 @@
 # VM
 <!---------------------------------------------------------------------------->
 
-## Debugger
-
-- do something with the return value of `<>`
-
-- add breakpoints
-    - requires the INT_DEBUG opcode
-        - this will set the IRQ = DEBUG and in the next iteration it will show
-        - we can check the return value of `<>` to decide what to do next
-            - if `(r)esume`, the IRQ is not set and running resumes
-            - if `(n)ext`, the IRQ is set to DEBUG, next instruction runs & we enter the debugger
-            - if `(q)uit`, an exception is thrown
-
-- if DEBUG=1
-    - run with the CLOCK setting
-    - only do the `<>` stuff if a breakpoint gets set
-
 ## Serial I/O
 
 - currently we have $sod and $sid as scalars

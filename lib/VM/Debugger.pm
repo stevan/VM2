@@ -3,19 +3,24 @@
 use v5.40;
 use experimental qw[ class ];
 
-use importer 'List::Util'  => qw[ max sum ];
-use importer 'Time::HiRes' => qw[ sleep ];
+use importer 'List::Util'    => qw[ max sum ];
+use importer 'Time::HiRes'   => qw[ sleep ];
+use importer 'Term::ReadKey' => qw[ ReadKey ReadMode ];
 
 use VM::Debugger::Stack;
 use VM::Debugger::Memory;
 use VM::Debugger::Code;
 
 class VM::Debugger {
+    use constant DEBUG_CLOCK => $ENV{CLOCK} // 0;
+
     field $vm :param :reader;
 
     field $code;
     field $stack;
     field $heap;
+
+    field $is_jumping = false;
 
     ADJUST {
         $code  //= VM::Debugger::Code   ->new( vm => $vm );
@@ -26,10 +31,34 @@ class VM::Debugger {
     method call {
         print "\e[2J\e[H\n";
         say join "\n" => $self->draw;
-        if (my $sleep = $ENV{CLOCK}) {
-            sleep($sleep);
-        } else {
-            my $x = <>;
+
+        my $curr = $vm->cpu->code_index( $vm->cpu->ci );
+
+        if ( DEBUG_CLOCK ) {
+            unless ($curr isa VM::Opcodes::Opcode && $curr->to_int == VM::Opcodes->BREAKPOINT->to_int) {
+                $vm->cpu->irq = VM::Interrupts->DEBUG;
+                sleep( DEBUG_CLOCK ) if DEBUG_CLOCK;
+                return;
+            }
+        }
+
+        ReadMode cbreak  => *STDIN;
+        my $x = ReadKey 0, *STDIN;
+        ReadMode restore => *STDIN;
+        if ($x eq ' ') {
+            # step ...
+            $vm->cpu->irq = VM::Interrupts->DEBUG;
+        } elsif ($x eq "\n") {
+            # jump to the next breakpoint ...
+            if (DEBUG_CLOCK) {
+                # but if have the clock, we still
+                # want the debugger to be visible
+                $vm->cpu->irq = VM::Interrupts->DEBUG
+            } else {
+                # ... do nothing I guess :)
+            }
+        } elsif ($x eq 'q') {
+            die "DEBUGGER ABORTED!";
         }
     }
 

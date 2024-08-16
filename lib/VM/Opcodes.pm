@@ -16,11 +16,18 @@ use VM::Value::FALSE;
 use VM::Value::POINTER;
 
 class VM::Opcodes {
+    field $vm :param :reader;
+
+    our @MICROCODE;
+    method microcode { \@MICROCODE }
+
     class VM::Opcodes::Opcode :isa(VM::Internal::Tools::Enum) {}
 
-    our @OPCODES;
+    my @OPCODE_NAMES;
     BEGIN {
-        @OPCODES = qw[
+        @OPCODE_NAMES = qw[
+            BREAKPOINT
+
             CONST_NULL
 
             CONST_TRUE
@@ -80,16 +87,31 @@ class VM::Opcodes {
 
             HALT
         ];
-        foreach my $i ( 0 .. $#OPCODES ) {
+        foreach my $i ( 0 .. $#OPCODE_NAMES ) {
             no strict 'refs';
-            my $op   = $OPCODES[$i];
+            my $op   = $OPCODE_NAMES[$i];
             my $enum = VM::Opcodes::Opcode->new( int => $i++, label => $op );
             constant->import( $op => $enum );
         }
+
+        constant->import( ALL_OPCODES => \@OPCODE_NAMES );
     }
 
-    our @MICROCODE;
     BEGIN {
+        # build the microcode instructions ...
+
+        ## ----------------------------------------------------------
+        ## Interrupts
+        ## ----------------------------------------------------------
+
+        $MICROCODE[BREAKPOINT] = set_subname( BREAKPOINT => sub ($cpu) {
+            $cpu->irq = VM::Interrupts->DEBUG;
+        });
+
+        ## ----------------------------------------------------------
+        ## Constants
+        ## ----------------------------------------------------------
+
         $MICROCODE[HALT] = set_subname( HALT => sub ($cpu) { $cpu->halt } );
 
         ## ----------------------------------------------------------
@@ -382,8 +404,8 @@ class VM::Opcodes {
 
         ## ----------------------------------------------------------
 
-        (scalar @MICROCODE == scalar @OPCODES)
+        (scalar @MICROCODE == scalar @OPCODE_NAMES)
             || die 'There must be microcode for each opcode, missing '
-                   .(scalar @OPCODES - scalar @MICROCODE).' opcodes';
+                   .(scalar @OPCODE_NAMES - scalar @MICROCODE).' opcodes';
     }
 }

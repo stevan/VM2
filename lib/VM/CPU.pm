@@ -1,10 +1,10 @@
 #!perl
+#!perl
 
 use v5.40;
 use experimental qw[ class ];
 
 use VM::Errors;
-use VM::Opcodes;
 use VM::Interrupts;
 
 class VM::CPU {
@@ -31,10 +31,8 @@ class VM::CPU {
     field @microcode;
     field @isr_table;
 
-    ADJUST {
-        @microcode = @VM::Opcodes::MICROCODE;
-        @isr_table = @VM::Interrupts::ISRS;
-    }
+    method load_microcode       ($microcode) { @microcode = @$microcode }
+    method load_interrupt_table ($isr_table) { @isr_table = @$isr_table }
 
     method load_code ($entry, $code) {
         @code    = @$code;
@@ -56,6 +54,7 @@ class VM::CPU {
     method peek      { $stack[$sp]        }
 
     method stack_index :lvalue ($idx) { $stack[$idx] }
+    method code_index          ($idx) { $code[$idx]  }
 
     method next_op { $code[$pc++] }
 

@@ -8,13 +8,12 @@ use VM::Memory;
 use VM::Clock;
 use VM::Channel;
 use VM::Interrupts;
+use VM::Opcodes;
 
 use VM::Assembler;
 use VM::Debugger;
 
 class VM {
-    use constant DEBUG => $ENV{DEBUG} // 0;
-
     field $heap_size :param :reader = 100;
 
     field $assembler :reader;
@@ -38,11 +37,14 @@ class VM {
             sid  => $sid,
         );
 
+        my $opcodes    = VM::Opcodes->new( vm => $self );
+        my $interrupts = VM::Interrupts->new( vm => $self );
+
+        $cpu->load_microcode( $opcodes->microcode );
+        $cpu->load_interrupt_table( $interrupts->interrupt_table );
+
         # create an assembler for later ...
         $assembler = VM::Assembler->new;
-
-        # attache the debugger to the Interrupt handler ...
-        $VM::Interrupts::DEBUGGER = VM::Debugger->new( vm => $self ) if DEBUG;
     }
 
     method heap { $cpu->heap }
@@ -59,9 +61,7 @@ class VM {
     method execute {
         try {
             until ($cpu->halted) {
-                # set the debugger to run if we are debugging
-                $cpu->irq = VM::Interrupts->DEBUG if DEBUG;
-                $clock->tick( $cpu )
+                $clock->tick( $cpu );
             }
         } catch ($e) {
             chomp $e;
