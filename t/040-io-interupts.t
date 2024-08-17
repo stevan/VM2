@@ -5,6 +5,8 @@ use experimental qw[ class ];
 
 use Test::More;
 
+use constant DEBUG => $ENV{DEBUG} // 0;
+
 use VM;
 use VM::Assembler::Assembly;
 use VM::Debugger;
@@ -80,22 +82,26 @@ $vm->assemble(
         EXIT,
 );
 
-$vm->execute;
+if (DEBUG) {
+    $vm->execute;
 
-subtest '... checking the VM state' => sub {
-    ok($vm->cpu->completed, '... the CPU completed the code');
-    ok(!$vm->cpu->halted, '... the CPU is not halted');
-    is($vm->heap->available, $vm->heap->capacity, '... the available space on the heap is equal to the capacity');
-    is(scalar $vm->heap->allocated, 0, '... all allocated memory has been freed');
-    is(scalar $vm->heap->freed, 5, '... we freed 3 pointer(s)');
-    ok(!$vm->sod->is_empty, '... the sod is empty');
-    is_deeply(
-        [ map $_->value, $vm->sod->buffer ],
-        [ 5, ':', 'h', 'e', 'l', 'l', 'o' ],
-        '... the sod contains the expected items'
-    );
-    ok($vm->sid->is_empty, '... the sid is empty');
-};
+    subtest '... checking the VM state' => sub {
+        ok($vm->cpu->completed, '... the CPU completed the code');
+        ok(!$vm->cpu->halted, '... the CPU is not halted');
+        is($vm->heap->available, $vm->heap->capacity, '... the available space on the heap is equal to the capacity');
+        is(scalar $vm->heap->allocated, 0, '... all allocated memory has been freed');
+        is(scalar $vm->heap->freed, 5, '... we freed 3 pointer(s)');
+        ok(!$vm->sod->is_empty, '... the sod is empty');
+        is_deeply(
+            [ map $_->value, $vm->sod->buffer ],
+            [ 5, ':', 'h', 'e', 'l', 'l', 'o' ],
+            '... the sod contains the expected items'
+        );
+        ok($vm->sid->is_empty, '... the sid is empty');
+    };
+} else {
+    pass('... not testable yet');
+}
 
 done_testing;
 

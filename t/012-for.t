@@ -73,7 +73,7 @@ subtest '... checking the VM state' => sub {
 };
 
 
-
+done_testing;
 
 
 

@@ -63,4 +63,4 @@ subtest '... checking the VM state' => sub {
     ok($vm->sid->is_empty, '... the sid is empty');
 };
 
-
+done_testing;
