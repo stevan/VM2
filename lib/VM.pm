@@ -86,11 +86,10 @@ class VM {
                 $clock->tick( $cpu );
 
                 if ($cpu->halted) {
+                    $self->flush_output;
                     $self->block_for_input;
                     $cpu->resume;
                 }
-            } continue {
-                $self->flush_output;
             }
         } catch ($e) {
             chomp $e;

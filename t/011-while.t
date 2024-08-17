@@ -1,17 +1,15 @@
 #!perl
 
 use v5.40;
-use experimental qw[ class builtin ];
+use experimental qw[ class ];
 
-use Scalar::Util ();
-use Sub::Util    ();
+use Test::More;
 
 use VM;
 use VM::Assembler::Assembly;
 use VM::Debugger;
 
 my $vm = VM->new;
-
 
 =pod
 
@@ -25,20 +23,20 @@ x;
 
 $vm->assemble(
     label('.main'),
-        #BREAKPOINT,
-        CONST_INT, i(0),
+        BREAKPOINT,
+        PUSH, i(0),
 
     label('.main.while'),
         LOAD, 0,
-        CONST_INT, i(5),
+        PUSH, i(5),
         LT_INT,
         JUMP_IF_FALSE, label('#main.while.break'),
 
         LOAD, 0,
-        CONST_INT, i(1),
+        PUSH, i(1),
         ADD_INT,
         STORE, 0,
-        #BREAKPOINT,
+        BREAKPOINT,
 
         JUMP, label('#main.while'),
     label('.main.while.break'),
@@ -50,6 +48,19 @@ $vm->assemble(
 
 $vm->execute;
 
-
+subtest '... checking the VM state' => sub {
+    ok($vm->cpu->completed, '... the CPU completed the code');
+    ok(!$vm->cpu->halted, '... the CPU is not halted');
+    is($vm->heap->available, $vm->heap->capacity, '... the available space on the heap is equal to the capacity');
+    is(scalar $vm->heap->allocated, 0, '... all allocated memory has been freed');
+    is(scalar $vm->heap->freed, 0, '... we freed one pointer');
+    ok(!$vm->sod->is_empty, '... the sod is empty');
+    is_deeply(
+        [ map $_->value, $vm->sod->buffer ],
+        [ 5 ],
+        '... the sod contains the expected items'
+    );
+    ok($vm->sid->is_empty, '... the sid is empty');
+};
 
 

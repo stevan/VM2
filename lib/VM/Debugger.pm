@@ -45,20 +45,20 @@ class VM::Debugger {
         ReadMode cbreak  => *STDIN;
         my $x = ReadKey 0, *STDIN;
         ReadMode restore => *STDIN;
-        if ($x eq ' ') {
-            # step ...
-            $vm->cpu->irq = VM::Interrupts->DEBUG;
-        } elsif ($x eq "\n") {
+        if ($x eq "\n") {
             # jump to the next breakpoint ...
             if (DEBUG_CLOCK) {
                 # but if have the clock, we still
                 # want the debugger to be visible
                 $vm->cpu->irq = VM::Interrupts->DEBUG
             } else {
-                # ... do nothing I guess :)
+                # otherwise step
+                $vm->cpu->irq = VM::Interrupts->DEBUG
             }
         } elsif ($x eq 'q') {
             die "DEBUGGER ABORTED!";
+        } else {
+            # anything else will exit the debugger
         }
     }
 

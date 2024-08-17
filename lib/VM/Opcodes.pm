@@ -35,9 +35,6 @@ class VM::Opcodes {
             CONST_TRUE
             CONST_FALSE
 
-            CONST_INT
-            CONST_CHAR
-
             INC_INT
             DEC_INT
 
@@ -88,6 +85,7 @@ class VM::Opcodes {
 
             DUP
             POP
+            PUSH
             SWAP
         ];
         foreach my $i ( 0 .. $#OPCODE_NAMES ) {
@@ -124,16 +122,6 @@ class VM::Opcodes {
 
         $MICROCODE[CONST_NULL] = set_subname( CONST_NULL => sub ($cpu) {
             $cpu->push( VM::Value::NULL->new );
-        });
-
-        $MICROCODE[CONST_INT] = set_subname( CONST_INT => sub ($cpu) {
-            my $int = $cpu->next_op;
-            $cpu->push( $int );
-        });
-
-        $MICROCODE[CONST_CHAR] = set_subname( CONST_CHAR => sub ($cpu) {
-            my $char = $cpu->next_op;
-            $cpu->push( $char );
         });
 
         $MICROCODE[CONST_TRUE] = set_subname( CONST_TRUE => sub ($cpu) {
@@ -407,6 +395,11 @@ class VM::Opcodes {
 
         $MICROCODE[POP] = set_subname( POP => sub ($cpu) {
             $cpu->pop;
+        });
+
+        $MICROCODE[PUSH] = set_subname( PUSH => sub ($cpu) {
+            my $val = $cpu->next_op;
+            $cpu->push( $val );
         });
 
         $MICROCODE[SWAP] = set_subname( SWAP => sub ($cpu) {

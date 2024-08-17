@@ -6,6 +6,7 @@ use experimental qw[ class ];
 use VM::Opcodes::Address;
 
 class VM::Assembler {
+    use constant DEBUGGING => $ENV{DEBUG} // 0;
 
     field @source        :reader;
     field $code          :reader;
@@ -13,7 +14,20 @@ class VM::Assembler {
     field $addr_to_label :reader;
 
     method assemble ($src) {
-        @source = @$src;
+        my @source;
+
+        unless (DEBUGGING) {
+            # if we are not debugging, then
+            # we can ignore the breakpoints
+            foreach my $token (@$src) {
+                next if blessed $token
+                     && $token isa VM::Opcodes::Opcode
+                     && $token->to_int == VM::Opcodes->BREAKPOINT->to_int;
+                push @source => $token;
+            }
+        } else {
+            @source = @$src;
+        }
 
         # build the table of labels ...
         my %label_to_addr;

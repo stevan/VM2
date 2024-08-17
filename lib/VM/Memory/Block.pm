@@ -66,6 +66,14 @@ class VM::Memory::Block {
         @allocated = grep { refaddr $pointer != refaddr $_ } @allocated;
         $words[ $_ ] = undef foreach $pointer->address_range;
         push @freed => $pointer;
+
+        $self->compact_block;
+    }
+
+    method compact_block {
+        while ($next_addr > 0 && not defined $words[ $next_addr - 1 ]) {
+            $next_addr--;
+        }
     }
 
     method resolve :lvalue ($pointer) {

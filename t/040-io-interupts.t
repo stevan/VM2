@@ -1,7 +1,9 @@
 #!perl
 
 use v5.40;
-use experimental qw[ class builtin ];
+use experimental qw[ class ];
+
+use Test::More;
 
 use VM;
 use VM::Assembler::Assembly;
@@ -18,25 +20,25 @@ my $vm = VM->new;
 $vm->assemble(
     label('.main'),
         #BREAKPOINT,
-        CONST_INT, i(20),
+        PUSH, i(20),
         ALLOC_MEM, 1,
 
-        CONST_INT, i(0), # count up
-        CONST_INT, i(0), # count down
+        PUSH, i(0), # count up
+        PUSH, i(0), # count down
 
-        CONST_CHAR, c('?'), PUT,
-        CONST_CHAR, c(' '), PUT,
+        PUSH, c('?'), PUT,
+        PUSH, c(' '), PUT,
 
     label('.main.getc'),
         HALT,
 
         GET_CHAR,
         DUP,
-        CONST_CHAR, c("\n"),
+        PUSH, c("\n"),
         EQ_CHAR,
         JUMP_IF_TRUE, label('#main.print'),
 
-        #BREAKPOINT,
+        BREAKPOINT,
 
         DUP,
         PUT,
@@ -45,7 +47,7 @@ $vm->assemble(
         LOAD, 0,
         STORE_MEM,
 
-        #BREAKPOINT,
+        BREAKPOINT,
 
         LOAD, 1,
         INC_INT,
@@ -55,11 +57,11 @@ $vm->assemble(
 
     label('.main.print'),
         PUT,
-        CONST_CHAR, c('>'), PUT,
-        CONST_CHAR, c(' '), PUT,
+        PUSH, c('>'), PUT,
+        PUSH, c(' '), PUT,
 
     label('.main.print.loop'),
-        #BREAKPOINT,
+        BREAKPOINT,
         LOAD, 2,
         LOAD, 0,
         LOAD_MEM,
@@ -74,13 +76,28 @@ $vm->assemble(
         EQ_INT,
         JUMP_IF_FALSE, label('#main.print.loop'),
 
-        CONST_CHAR, c("\n"), PUT,
+        PUSH, c("\n"), PUT,
         EXIT,
 );
 
 $vm->execute;
 
+subtest '... checking the VM state' => sub {
+    ok($vm->cpu->completed, '... the CPU completed the code');
+    ok(!$vm->cpu->halted, '... the CPU is not halted');
+    is($vm->heap->available, $vm->heap->capacity, '... the available space on the heap is equal to the capacity');
+    is(scalar $vm->heap->allocated, 0, '... all allocated memory has been freed');
+    is(scalar $vm->heap->freed, 5, '... we freed 3 pointer(s)');
+    ok(!$vm->sod->is_empty, '... the sod is empty');
+    is_deeply(
+        [ map $_->value, $vm->sod->buffer ],
+        [ 5, ':', 'h', 'e', 'l', 'l', 'o' ],
+        '... the sod contains the expected items'
+    );
+    ok($vm->sid->is_empty, '... the sid is empty');
+};
 
+done_testing;
 
 
 
