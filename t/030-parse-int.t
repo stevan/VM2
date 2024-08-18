@@ -168,7 +168,6 @@ $vm->execute;
 
 say $vm->sod->buffer;
 
-=pod
 subtest '... checking the VM state' => sub {
     ok($vm->cpu->completed, '... the CPU completed the code');
     ok(!$vm->cpu->halted, '... the CPU is not halted');
@@ -178,12 +177,11 @@ subtest '... checking the VM state' => sub {
     ok(!$vm->sod->is_empty, '... the sod is empty');
     is_deeply(
         [ map $_->value, $vm->sod->buffer ],
-        [ true ],
+        [ 590394 ],
         '... the sod contains the expected items'
     );
     ok($vm->sid->is_empty, '... the sid is empty');
 };
-=cut
 
 done_testing;
 
