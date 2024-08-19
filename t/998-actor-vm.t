@@ -272,7 +272,9 @@ class VM {
 
             foreach my $p (@p) {
                 say "excuting process: ".$p->dump;
-                $self->execute($p);
+                if ($p->is_ready) {
+                    $self->execute($p);
+                }
             }
 
             say "bus: ".join ', ' => @bus;
