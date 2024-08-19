@@ -32,10 +32,10 @@ class Inst {
             JUMP_IF_TRUE
             JUMP_IF_FALSE
 
-            CREATE_SIGNAL
-            SIGNAL_TO
-            SIGNAL_FROM
-            SIGNAL_BODY
+            CREATE_MSG
+            MSG_TO
+            MSG_FROM
+            MSG_BODY
 
             LOAD
             STORE
@@ -115,14 +115,14 @@ class Port {
     }
 }
 
-class Signal {
+class Message {
     use overload '""' => \&to_string;
 
     field $to   :param :reader;
     field $from :param :reader;
     field $body :param :reader;
 
-    method to_string { sprintf 'sig{to<%s> from<%s> body[%s]}', $to, $from // '~', $body // '~' }
+    method to_string { sprintf 'msg<to:%s from:%s body:[%s]>', $to, $from // '~', $body // '~' }
 }
 
 class Process {
@@ -250,7 +250,7 @@ class VM {
     method next_op { $code[$pc++] }
 
     method run {
-        push @bus => Signal->new(
+        push @bus => Message->new(
             to   => $procs[0],
             from => undef,
             body => undef,
@@ -381,24 +381,24 @@ class VM {
             # ----------------------------
             # ...
             # ----------------------------
-            elsif ($op == Inst->CREATE_SIGNAL) {
+            elsif ($op == Inst->CREATE_MSG) {
                 my $to   = $p->pop;
                 my $body = $p->pop;
-                $p->push(Signal->new(
+                $p->push(Message->new(
                     to   => $to,
                     from => $p,
                     body => $body,
                 ));
             }
-            elsif ($op == Inst->SIGNAL_TO) {
+            elsif ($op == Inst->MSG_TO) {
                 my $signal = $p->pop;
                 $p->push($signal->to);
             }
-            elsif ($op == Inst->SIGNAL_FROM) {
+            elsif ($op == Inst->MSG_FROM) {
                 my $signal = $p->pop;
                 $p->push($signal->from);
             }
-            elsif ($op == Inst->SIGNAL_BODY) {
+            elsif ($op == Inst->MSG_BODY) {
                 my $signal = $p->pop;
                 $p->push($signal->body);
             }
@@ -456,7 +456,7 @@ my $vm = VM->new(
     '.echo',
         Inst->RECV,
 
-        Inst->SIGNAL_BODY,
+        Inst->MSG_BODY,
         Inst->DUP,
 
         Inst->PUT,
@@ -469,7 +469,7 @@ my $vm = VM->new(
         Inst->DEC_INT,
 
         Inst->SELF,
-        Inst->CREATE_SIGNAL,
+        Inst->CREATE_MSG,
         Inst->SEND,
 
         Inst->NEXT, '#echo',
@@ -484,12 +484,12 @@ my $vm = VM->new(
 
         Inst->PUSH, 10,
         Inst->SWAP,
-        Inst->CREATE_SIGNAL,
+        Inst->CREATE_MSG,
         Inst->SEND,
 
         Inst->PUSH, 5,
         Inst->SWAP,
-        Inst->CREATE_SIGNAL,
+        Inst->CREATE_MSG,
         Inst->SEND,
 
         Inst->STOP,
